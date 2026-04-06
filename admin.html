@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K Co Store Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mustard: #D4A017;
+    --coral: #E8694A;
+    --navy: #1B2B4B;
+    --cream: #F5F0E8;
+    --sage: #7A9E7E;
+    --dark: #0F1923;
+    --border: #E0D8CC;
+    --muted: #8A8A8A;
+    --danger: #C0392B;
+    --success: #27AE60;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #F0EBE0;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--navy);
+    min-height: 100vh;
+  }
+
+  /* LOGIN */
+  .login-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .login-box {
+    background: white;
+    border: 2px solid var(--navy);
+    padding: 48px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .login-box h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: var(--navy);
+  }
+
+  .login-box p {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  .login-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1.5px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 16px;
+    margin-bottom: 16px;
+    background: var(--cream);
+    color: var(--navy);
+    letter-spacing: 0.1em;
+    text-align: center;
+  }
+
+  .login-input:focus { outline: 2px solid var(--coral); border-color: transparent; }
+
+  .btn-login {
+    width: 100%;
+    padding: 14px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-login:hover { background: var(--coral); }
+
+  .login-error {
+    color: var(--danger);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  /* ADMIN LAYOUT */
+  .admin-screen { display: none; }
+  .admin-screen.visible { display: block; }
+
+  .admin-header {
+    background: var(--navy);
+    color: var(--cream);
+    padding: 16px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .admin-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .admin-title span { color: var(--mustard); }
+
+  .admin-nav {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .admin-nav a, .admin-nav button {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--cream);
+    text-decoration: none;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .admin-nav a:hover, .admin-nav button:hover {
+    background: var(--coral);
+    border-color: var(--coral);
+  }
+
+  .admin-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .stat-card {
+    background: white;
+    border: 2px solid var(--border);
+    padding: 20px 24px;
+    border-radius: 2px;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  .stat-value.coral { color: var(--coral); }
+  .stat-value.sage { color: var(--sage); }
+  .stat-value.mustard { color: var(--mustard); }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--navy);
+  }
+
+  .btn-primary {
+    background: var(--coral);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+
+  .btn-primary:hover { background: #d4502e; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--navy);
+    border: 1.5px solid var(--navy);
+    padding: 10px 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { background: var(--navy); color: white; }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1.5px solid var(--danger);
+    padding: 6px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .btn-danger:hover { background: var(--danger); color: white; }
+
+  .btn-edit {
+    background: transparent;
+    color: var(--navy);
+    border: 1.5px solid var(--border);
+    padding: 6px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .btn-edit:hover { border-color: var(--navy); background: var(--navy); color: white; }
+
+  /* PRODUCT TABLE */
+  .product-table {
+    width: 100%;
+    background: white;
+    border: 2px solid var(--border);
+    border-collapse: collapse;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .product-table th {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+  }
+
+  .product-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  .product-table tr:last-child td { border-bottom: none; }
+  .product-table tr:hover td { background: #FAFAF7; }
+
+  .table-title {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--navy);
+    max-width: 220px;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 2px;
+  }
+
+  .status-live { background: #d4edda; color: #155724; }
+  .status-coming_soon { background: #fff3cd; color: #856404; }
+  .status-preorder { background: #d1ecf1; color: #0c5460; }
+  .status-hidden { background: #f8d7da; color: #721c24; }
+
+  .table-categories {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    max-width: 180px;
+  }
+
+  .table-cat-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    background: var(--cream);
+    color: var(--coral);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    text-transform: uppercase;
+  }
+
+  .table-actions { display: flex; gap: 8px; }
+
+  /* MODAL / FORM */
+  .form-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,25,35,0.85);
+    z-index: 1000;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 20px;
+    overflow-y: auto;
+    backdrop-filter: blur(4px);
+  }
+
+  .form-overlay.open { display: flex; }
+
+  .form-modal {
+    background: white;
+    max-width: 680px;
+    width: 100%;
+    padding: 48px;
+    position: relative;
+    animation: slideIn 0.3s ease;
+    margin: auto;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .form-modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 32px;
+  }
+
+  .form-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-field.full { grid-column: 1 / -1; }
+
+  .form-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .form-label .required { color: var(--coral); }
+
+  .form-input, .form-select, .form-textarea {
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--navy);
+    background: var(--cream);
+    transition: border-color 0.2s;
+    border-radius: 2px;
+  }
+
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--coral);
+    background: white;
+  }
+
+  .form-textarea { resize: vertical; min-height: 100px; }
+
+  .form-select { cursor: pointer; }
+
+  /* Category checkboxes */
+  .category-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .cat-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1.5px solid var(--border);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--navy);
+    user-select: none;
+  }
+
+  .cat-checkbox:hover { border-color: var(--coral); }
+  .cat-checkbox.checked { background: var(--coral); color: white; border-color: var(--coral); }
+  .cat-checkbox input { display: none; }
+
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--navy);
+    color: var(--cream);
+    padding: 14px 24px;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    border-radius: 2px;
+    z-index: 2000;
+    transform: translateY(100px);
+    transition: transform 0.3s ease;
+    border-left: 4px solid var(--coral);
+  }
+
+  .toast.show { transform: translateY(0); }
+  .toast.success { border-left-color: var(--sage); }
+  .toast.error { border-left-color: var(--danger); }
+
+  .embed-box {
+    background: var(--dark);
+    color: #7fffb2;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 20px;
+    border-radius: 2px;
+    margin-top: 12px;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .embed-section {
+    background: white;
+    border: 2px solid var(--border);
+    padding: 32px;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 768px) {
+    .admin-main { padding: 20px; }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-modal { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <h1>K Co Store</h1>
+    <p>Admin access only — enter your password</p>
+    <input type="password" class="login-input" id="admin-password" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')checkPassword()">
+    <button class="btn-login" onclick="checkPassword()">Enter the Store Room</button>
+    <div class="login-error" id="login-error">Wrong password. Try again.</div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-screen" id="admin-screen">
+  <header class="admin-header">
+    <div class="admin-title">K Co Store <span>Admin</span></div>
+    <nav class="admin-nav">
+      <a href="/index.html" target="_blank">View Store ↗</a>
+      <button onclick="openForm()">+ Add Product</button>
+      <button onclick="logout()">Log Out</button>
+    </nav>
+  </header>
+
+  <main class="admin-main">
+
+    <!-- STATS -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="stat-label">Total Products</div>
+        <div class="stat-value" id="stat-total">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Live</div>
+        <div class="stat-value sage" id="stat-live">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Coming Soon</div>
+        <div class="stat-value mustard" id="stat-soon">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pre-Order</div>
+        <div class="stat-value coral" id="stat-preorder">—</div>
+      </div>
+    </div>
+
+    <!-- PRODUCT LIST -->
+    <div class="section-header">
+      <h2 class="section-title">Products</h2>
+      <button class="btn-primary" onclick="openForm()">+ Add Product</button>
+    </div>
+
+    <table class="product-table" id="product-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Price</th>
+          <th>Type</th>
+          <th>Categories</th>
+          <th>Status</th>
+          <th>Account</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="product-tbody">
+        <tr><td colspan="7" style="text-align:center;padding:40px;font-family:DM Mono,monospace;color:#8A8A8A">Loading products...</td></tr>
+      </tbody>
+    </table>
+
+    <!-- EMBED CODES -->
+    <div class="embed-section">
+      <div class="section-header">
+        <h2 class="section-title">Embed Codes</h2>
+      </div>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:20px;font-family:DM Mono,monospace">Paste these into any page on any of your sites to show that category's products inline.</p>
+
+      <div id="embed-codes"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- PRODUCT FORM -->
+<div class="form-overlay" id="form-overlay">
+  <div class="form-modal">
+    <button class="form-close" onclick="closeForm()">✕</button>
+    <h2 id="form-title">Add New Product</h2>
+
+    <div class="form-grid">
+      <div class="form-field full">
+        <label class="form-label">Title <span class="required">*</span></label>
+        <input type="text" class="form-input" id="f-title" placeholder="Product name">
+      </div>
+
+      <div class="form-field full">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="f-description" placeholder="Product description — your voice, your words"></textarea>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Price ($) — leave blank if TBD</label>
+        <input type="number" class="form-input" id="f-price" placeholder="0.00" step="0.01" min="0">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Product Type <span class="required">*</span></label>
+        <select class="form-select" id="f-type">
+          <option value="digital">Digital Download</option>
+          <option value="physical_ship">Physical — Ships from You</option>
+          <option value="printful">Printful (Print on Demand)</option>
+          <option value="free">Free</option>
+          <option value="service">Service / Program</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Status</label>
+        <select class="form-select" id="f-status">
+          <option value="live">Live</option>
+          <option value="coming_soon">Coming Soon</option>
+          <option value="preorder">Pre-Order</option>
+          <option value="hidden">Hidden</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Stripe Account</label>
+        <select class="form-select" id="f-stripe-account">
+          <option value="KCO">Kari Hoglund Kounkel LLC</option>
+          <option value="CARES">CARES Consulting Inc.</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Stripe Price ID (from Stripe dashboard)</label>
+        <input type="text" class="form-input" id="f-stripe-price" placeholder="price_...">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Image URL</label>
+        <input type="text" class="form-input" id="f-image" placeholder="https://... or /images/product.png">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Download URL (digital products only)</label>
+        <input type="text" class="form-input" id="f-download" placeholder="https://...">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Featured?</label>
+        <select class="form-select" id="f-featured">
+          <option value="false">No</option>
+          <option value="true">Yes — show in featured spots</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Sort Order (lower = first)</label>
+        <input type="number" class="form-input" id="f-sort" placeholder="0" value="0">
+      </div>
+
+      <div class="form-field full">
+        <label class="form-label">Categories <span class="required">*</span> (select all that apply)</label>
+        <div class="category-checkboxes" id="category-checkboxes"></div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-secondary" onclick="closeForm()">Cancel</button>
+      <button class="btn-primary" onclick="saveProduct()">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  const SUPABASE_URL = 'https://lheytkgixafdhluuvrbg.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoZXl0a2dpeGFmZGhsdXV2cmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDUxOTksImV4cCI6MjA5MTAyMTE5OX0.ACGgv_cHHLJTP_-Bqj1pwosc6heo8l_4VWoWlHNiV7s';
+
+  // Simple password — change this to something only you know
+  const ADMIN_PASSWORD = 'steadfast2026';
+
+  let allProducts = [];
+  let allCategories = [];
+  let editingId = null;
+
+  // ---- AUTH ----
+  function checkPassword() {
+    const val = document.getElementById('admin-password').value;
+    if (val === ADMIN_PASSWORD) {
+      sessionStorage.setItem('kkadmin', '1');
+      showAdmin();
+    } else {
+      document.getElementById('login-error').style.display = 'block';
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('kkadmin');
+    document.getElementById('admin-screen').classList.remove('visible');
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+
+  function showAdmin() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').classList.add('visible');
+    loadData();
+  }
+
+  // Auto-login if session exists
+  if (sessionStorage.getItem('kkadmin')) showAdmin();
+
+  // ---- DATA ----
+  async function api(method, path, body) {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      method,
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': method === 'POST' ? 'return=representation' : 'return=minimal'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (method === 'GET' || (method === 'POST' && res.ok)) return res.json().catch(() => null);
+    return res.ok;
+  }
+
+  async function loadData() {
+    const [products, categories] = await Promise.all([
+      api('GET', 'products?select=*&order=sort_order,created_at'),
+      api('GET', 'categories?select=*&order=name')
+    ]);
+
+    allProducts = products || [];
+    allCategories = categories || [];
+
+    renderStats();
+    renderTable();
+    renderCategoryCheckboxes();
+    renderEmbedCodes();
+  }
+
+  function renderStats() {
+    document.getElementById('stat-total').textContent = allProducts.length;
+    document.getElementById('stat-live').textContent = allProducts.filter(p => p.status === 'live').length;
+    document.getElementById('stat-soon').textContent = allProducts.filter(p => p.status === 'coming_soon').length;
+    document.getElementById('stat-preorder').textContent = allProducts.filter(p => p.status === 'preorder').length;
+  }
+
+  function renderTable() {
+    const tbody = document.getElementById('product-tbody');
+    if (!allProducts.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;font-family:DM Mono,monospace;color:#8A8A8A">No products yet — add your first one!</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = allProducts.map(p => `
+      <tr>
+        <td><div class="table-title">${p.title}</div></td>
+        <td style="font-family:DM Mono,monospace;font-size:13px">${p.price ? '$' + Number(p.price).toFixed(2) : p.product_type === 'free' ? 'FREE' : '—'}</td>
+        <td style="font-family:DM Mono,monospace;font-size:12px;color:var(--muted)">${p.product_type}</td>
+        <td><div class="table-categories">${(p.categories || []).map(c => '<span class="table-cat-tag">' + c + '</span>').join('')}</div></td>
+        <td><span class="status-badge status-${p.status}">${p.status.replace('_', ' ')}</span></td>
+        <td style="font-family:DM Mono,monospace;font-size:12px">${p.stripe_account || '—'}</td>
+        <td><div class="table-actions">
+          <button class="btn-edit" onclick="editProduct('${p.id}')">Edit</button>
+          <button class="btn-danger" onclick="deleteProduct('${p.id}', '${p.title.replace(/'/g, "\\'")}')">Delete</button>
+        </div></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderCategoryCheckboxes(selected = []) {
+    const container = document.getElementById('category-checkboxes');
+    container.innerHTML = allCategories.map(cat => `
+      <label class="cat-checkbox ${selected.includes(cat.slug) ? 'checked' : ''}" data-slug="${cat.slug}" onclick="toggleCat(this)">
+        <input type="checkbox" ${selected.includes(cat.slug) ? 'checked' : ''}>${cat.name}
+      </label>
+    `).join('');
+  }
+
+  function toggleCat(el) {
+    el.classList.toggle('checked');
+    el.querySelector('input').checked = el.classList.contains('checked');
+  }
+
+  function getSelectedCategories() {
+    return [...document.querySelectorAll('.cat-checkbox.checked')].map(el => el.dataset.slug);
+  }
+
+  function renderEmbedCodes() {
+    const container = document.getElementById('embed-codes');
+    const base = window.location.origin;
+    container.innerHTML = allCategories.map(cat => `
+      <div style="margin-bottom:24px">
+        <div style="font-family:DM Mono,monospace;font-size:12px;color:var(--navy);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.06em">${cat.name} Widget</div>
+        <div class="embed-box">&lt;script src="${base}/widget.js" data-category="${cat.slug}" data-store="${SUPABASE_URL}"&gt;&lt;/script&gt;</div>
+        <button onclick="navigator.clipboard.writeText('&lt;script src=\\'${base}/widget.js\\' data-category=\\'${cat.slug}\\' data-store=\\'${SUPABASE_URL}\\'&gt;&lt;/script&gt;').then(()=>showToast('Copied!','success'))" style="margin-top:8px;background:none;border:1px solid var(--border);padding:6px 12px;font-family:DM Mono,monospace;font-size:11px;cursor:pointer;border-radius:2px;color:var(--navy)">Copy</button>
+      </div>
+    `).join('');
+  }
+
+  // ---- FORM ----
+  function openForm(product) {
+    editingId = product ? product.id : null;
+    document.getElementById('form-title').textContent = product ? 'Edit Product' : 'Add New Product';
+
+    document.getElementById('f-title').value = product ? product.title : '';
+    document.getElementById('f-description').value = product ? product.description || '' : '';
+    document.getElementById('f-price').value = product ? product.price || '' : '';
+    document.getElementById('f-type').value = product ? product.product_type : 'digital';
+    document.getElementById('f-status').value = product ? product.status : 'live';
+    document.getElementById('f-stripe-account').value = product ? product.stripe_account || 'KCO' : 'KCO';
+    document.getElementById('f-stripe-price').value = product ? product.stripe_price_id || '' : '';
+    document.getElementById('f-image').value = product ? product.image_url || '' : '';
+    document.getElementById('f-download').value = product ? product.download_url || '' : '';
+    document.getElementById('f-featured').value = product ? String(product.featured) : 'false';
+    document.getElementById('f-sort').value = product ? product.sort_order || 0 : 0;
+
+    renderCategoryCheckboxes(product ? product.categories || [] : []);
+
+    document.getElementById('form-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeForm() {
+    document.getElementById('form-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    editingId = null;
+  }
+
+  function editProduct(id) {
+    const p = allProducts.find(p => p.id === id);
+    if (p) openForm(p);
+  }
+
+  async function deleteProduct(id, title) {
+    if (!confirm('Delete "' + title + '"? This cannot be undone.')) return;
+    const ok = await api('DELETE', 'products?id=eq.' + id);
+    showToast('Product deleted.', 'error');
+    loadData();
+  }
+
+  function slugify(str) {
+    return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  }
+
+  async function saveProduct() {
+    const title = document.getElementById('f-title').value.trim();
+    if (!title) { showToast('Title is required!', 'error'); return; }
+
+    const categories = getSelectedCategories();
+    if (!categories.length) { showToast('Select at least one category!', 'error'); return; }
+
+    const priceVal = document.getElementById('f-price').value;
+    const data = {
+      title,
+      slug: slugify(title),
+      description: document.getElementById('f-description').value.trim(),
+      price: priceVal ? parseFloat(priceVal) : null,
+      product_type: document.getElementById('f-type').value,
+      status: document.getElementById('f-status').value,
+      stripe_account: document.getElementById('f-stripe-account').value,
+      stripe_price_id: document.getElementById('f-stripe-price').value.trim() || null,
+      image_url: document.getElementById('f-image').value.trim() || null,
+      download_url: document.getElementById('f-download').value.trim() || null,
+      featured: document.getElementById('f-featured').value === 'true',
+      sort_order: parseInt(document.getElementById('f-sort').value) || 0,
+      categories,
+      updated_at: new Date().toISOString()
+    };
+
+    if (editingId) {
+      await api('PATCH', 'products?id=eq.' + editingId, data);
+      showToast('Product updated! ✦', 'success');
+    } else {
+      await api('POST', 'products', data);
+      showToast('Product added! ✦', 'success');
+    }
+
+    closeForm();
+    loadData();
+  }
+
+  // ---- TOAST ----
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    setTimeout(() => { t.className = 'toast ' + type; }, 3000);
+  }
+
+  // Close form on overlay click
+  document.getElementById('form-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeForm();
+  });
+</script>
+<script src="https://chat.karikounkel.com/widget.js" defer></script>
+</body>
+</html>
