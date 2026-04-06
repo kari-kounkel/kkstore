@@ -7,24 +7,36 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --mustard: #D4A017;
-    --coral: #E8694A;
-    --navy: #1B2B4B;
-    --cream: #F5F0E8;
-    --sage: #7A9E7E;
-    --dark: #0F1923;
-    --border: #E0D8CC;
-    --muted: #8A8A8A;
-    --danger: #C0392B;
-    --success: #27AE60;
+    --slate:        #6B7FA3;
+    --slate-light:  #EEF1F7;
+    --navy:         #1E2A6E;
+    --orange:       #E8845A;
+    --orange-light: #FEF2EC;
+    --pink:         #D94475;
+    --pink-light:   #FCEEF4;
+    --lilac:        #B8BDD4;
+    --lilac-light:  #F4F5FA;
+    --white:        #FFFFFF;
+    --off:          #F7F8FC;
+    --border:       #E4E7F0;
+    --text:         #1A1F35;
+    --muted:        #8B91A8;
+    --danger:       #C0392B;
+    --success:      #27AE60;
+    /* legacy aliases */
+    --mustard: #E8845A;
+    --coral:   #D94475;
+    --cream:   #F4F5FA;
+    --sage:    #6B7FA3;
+    --dark:    #1A1F35;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #F0EBE0;
+    background: var(--off);
     font-family: 'DM Sans', sans-serif;
-    color: var(--navy);
+    color: var(--text);
     min-height: 100vh;
   }
 
@@ -38,12 +50,14 @@
   }
 
   .login-box {
-    background: white;
+    background: var(--white);
     border: 2px solid var(--navy);
+    border-radius: 16px;
     padding: 48px;
     max-width: 400px;
     width: 100%;
     text-align: center;
+    box-shadow: 0 8px 32px rgba(30,42,110,0.1);
   }
 
   .login-box h1 {
@@ -67,18 +81,19 @@
     font-family: 'DM Mono', monospace;
     font-size: 16px;
     margin-bottom: 16px;
-    background: var(--cream);
-    color: var(--navy);
+    background: var(--off);
+    color: var(--text);
     letter-spacing: 0.1em;
     text-align: center;
+    border-radius: 8px;
   }
 
-  .login-input:focus { outline: 2px solid var(--coral); border-color: transparent; }
+  .login-input:focus { outline: 2px solid var(--orange); border-color: transparent; }
 
   .btn-login {
     width: 100%;
     padding: 14px;
-    background: var(--navy);
+    background: linear-gradient(135deg, var(--orange) 0%, var(--pink) 100%);
     color: white;
     border: none;
     font-family: 'DM Mono', monospace;
@@ -86,10 +101,11 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: opacity 0.2s;
+    border-radius: 8px;
   }
 
-  .btn-login:hover { background: var(--coral); }
+  .btn-login:hover { opacity: 0.9; }
 
   .login-error {
     color: var(--danger);
@@ -204,7 +220,7 @@
   }
 
   .btn-primary {
-    background: var(--coral);
+    background: linear-gradient(135deg, var(--orange) 0%, var(--pink) 100%);
     color: white;
     border: none;
     padding: 12px 24px;
@@ -213,11 +229,11 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
     cursor: pointer;
-    border-radius: 2px;
-    transition: background 0.2s;
+    border-radius: 8px;
+    transition: opacity 0.2s;
   }
 
-  .btn-primary:hover { background: #d4502e; }
+  .btn-primary:hover { opacity: 0.9; }
 
   .btn-secondary {
     background: transparent;
@@ -422,16 +438,16 @@
     border: 1.5px solid var(--border);
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
-    color: var(--navy);
-    background: var(--cream);
+    color: var(--text);
+    background: var(--off);
     transition: border-color 0.2s;
-    border-radius: 2px;
+    border-radius: 8px;
   }
 
   .form-input:focus, .form-select:focus, .form-textarea:focus {
     outline: none;
-    border-color: var(--coral);
-    background: white;
+    border-color: var(--orange);
+    background: var(--white);
   }
 
   .form-textarea { resize: vertical; min-height: 100px; }
