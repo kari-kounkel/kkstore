@@ -736,15 +736,18 @@ function openModal(id) {
   } else if (p.status === 'preorder') {
     btn.textContent = 'Pre-Order Now';
     btn.className = 'btn-buy pre';
-    btn.onclick = () => alert('Pre-order coming soon! Email kari@karikounkel.com');
+    if (p.payment_link) { btn.onclick = () => { window.location.href = p.payment_link; }; }
+    else { btn.onclick = () => alert('Pre-order opens soon! Email kari@karikounkel.com'); }
   } else if (p.product_type === 'free' || p.price === 0) {
     btn.textContent = 'Get It Free →';
     btn.className = 'btn-buy free-btn';
-    btn.onclick = () => alert('Free access coming soon!');
+    if (p.download_url) { btn.onclick = () => { window.location.href = p.download_url; }; }
+    else { btn.onclick = () => alert('Free access coming soon!'); }
   } else {
     btn.textContent = 'Buy Now — ' + priceText(p);
     btn.className = 'btn-buy';
-    btn.onclick = () => alert('Checkout coming soon! Email kari@karikounkel.com to purchase.');
+    if (p.payment_link) { btn.onclick = () => { window.location.href = p.payment_link; }; }
+    else { btn.onclick = () => alert('Checkout coming soon! Email kari@karikounkel.com to purchase.'); }
   }
 
   document.getElementById('share-btn').onclick = () => {

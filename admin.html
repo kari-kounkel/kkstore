@@ -672,8 +672,8 @@
       </div>
 
       <div class="form-field">
-        <label class="form-label">Stripe Price ID (from Stripe dashboard)</label>
-        <input type="text" class="form-input" id="f-stripe-price" placeholder="price_...">
+        <label class="form-label">Stripe Payment Link (Stripe → Payment Links → paste the buy.stripe.com URL)</label>
+        <input type="text" class="form-input" id="f-stripe-price" placeholder="https://buy.stripe.com/...">
       </div>
 
       <div class="form-field">
@@ -854,7 +854,7 @@
     document.getElementById('f-type').value = product ? product.product_type : 'digital';
     document.getElementById('f-status').value = product ? product.status : 'live';
     document.getElementById('f-stripe-account').value = product ? product.stripe_account || 'KCO' : 'KCO';
-    document.getElementById('f-stripe-price').value = product ? product.stripe_price_id || '' : '';
+    document.getElementById('f-stripe-price').value = product ? product.payment_link || '' : '';
     document.getElementById('f-image').value = product ? product.image_url || '' : '';
     document.getElementById('f-download').value = product ? product.download_url || '' : '';
     document.getElementById('f-featured').value = product ? String(product.featured) : 'false';
@@ -904,7 +904,7 @@
       product_type: document.getElementById('f-type').value,
       status: document.getElementById('f-status').value,
       stripe_account: document.getElementById('f-stripe-account').value,
-      stripe_price_id: document.getElementById('f-stripe-price').value.trim() || null,
+      payment_link: document.getElementById('f-stripe-price').value.trim() || null,
       image_url: document.getElementById('f-image').value.trim() || null,
       download_url: document.getElementById('f-download').value.trim() || null,
       featured: document.getElementById('f-featured').value === 'true',
