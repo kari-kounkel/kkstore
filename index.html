@@ -911,7 +911,7 @@ init();
   <div class="deal-head">
     <div class="deal-eyebrow">fresh from the coop</div>
     <div class="deal-title">The Latest Offerings</div>
-    <div class="deal-sub">let the hen deal you something good 🐔</div>
+    <div class="deal-sub">let the hen deal you something good</div>
   </div>
   <div class="deal-filters" id="deal-filters"></div>
   <div class="deal-stage" id="deal-stage">
@@ -930,7 +930,7 @@ init();
     <img class="deal-hen" src="dealer-hen.png" alt="the dealer hen" />
   </div>
   <div class="deal-controls">
-    <button class="deal-btn primary" onclick="dealAgain()">🐔 Deal again</button>
+    <button class="deal-btn primary" onclick="dealAgain()">Deal again</button>
     <button class="deal-btn ghost" onclick="showShop()">see the whole shop →</button>
   </div>
 </div>
@@ -954,7 +954,7 @@ init();
   function changeQty(id,d){ var c=getCart(); var it=c.find(function(i){return i.id===id;}); if(!it) return; it.qty+=d; if(it.qty<=0) c.splice(c.indexOf(it),1); setCart(c); renderCart(); }
   function renderCart(){
     var c=getCart(), wrap=document.getElementById('cart-items'), sub=0;
-    if(!c.length){ wrap.innerHTML='<div class="cart-empty"><img src="chickens/fill-that-cart.png" alt="" style="width:120px;height:auto;margin-bottom:6px;"><br>Your cart\'s empty — let the hen help you fill it. 🐔</div>'; document.getElementById('cart-subtotal').textContent='$0.00'; document.getElementById('cart-checkout').disabled=true; return; }
+    if(!c.length){ wrap.innerHTML='<div class="cart-empty"><img src="chickens/fill-that-cart.png" alt="" style="width:120px;height:auto;margin-bottom:6px;"><br>Your cart\'s empty — let the hen help you fill it.</div>'; document.getElementById('cart-subtotal').textContent='$0.00'; document.getElementById('cart-checkout').disabled=true; return; }
     document.getElementById('cart-checkout').disabled=false;
     wrap.innerHTML=c.map(function(i){
       var p=(typeof products!=='undefined'&&products?products:[]).find(function(x){return x.id===i.id;}); if(!p) return '';
