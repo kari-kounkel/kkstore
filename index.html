@@ -610,7 +610,7 @@
   .dc-title{font-family:Georgia,'Times New Roman',serif;font-size:14px;color:var(--text);line-height:1.2;flex:1;}
   .dc-price{font-weight:800;color:var(--pink);font-size:15px;}
   .dc-add{background:var(--grad);color:#fff;border:none;border-radius:20px;padding:8px;font-weight:800;font-size:10px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;}
-  .deal-hen{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:104px;pointer-events:none;z-index:60;}
+  .deal-hen{position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:300px;height:auto;pointer-events:none;z-index:60;}
   .deal-cart{position:absolute;top:18px;right:20px;background:#fff;border:1px solid var(--border);border-radius:30px;padding:8px 16px;font-weight:800;font-size:13px;cursor:pointer;z-index:70;}
   .deal-controls{flex-shrink:0;text-align:center;padding:0 20px 24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
   .deal-btn{font-family:'Nunito Sans',system-ui,sans-serif;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:30px;padding:13px 24px;cursor:pointer;border:none;}
@@ -913,19 +913,7 @@ init();
   </div>
   <div class="deal-filters" id="deal-filters"></div>
   <div class="deal-stage" id="deal-stage">
-    <svg class="deal-hen" viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <g fill="none" stroke="#3a2a22" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M150 70 q34 -24 34 6 M150 84 q40 -14 40 16 M150 98 q34 -2 30 26" stroke="#F07830"/>
-        <ellipse cx="104" cy="100" rx="60" ry="46" fill="#fff"/>
-        <circle cx="58" cy="62" r="27" fill="#fff"/>
-        <path d="M62 96 q-22 -8 -40 6 q20 14 42 4" fill="none"/>
-        <path d="M34 60 l-18 6 l18 8 z" fill="#F07830" stroke="#F07830"/>
-      </g>
-      <path d="M46 38 q5 -13 11 -2 q5 -13 11 -2 q5 -11 9 0" fill="#E0381F" stroke="#E0381F" stroke-width="2"/>
-      <path d="M40 74 q-3 14 5 16 q7 -2 4 -16" fill="#E0381F"/>
-      <circle cx="54" cy="56" r="3.4" fill="#3a2a22"/>
-      <g stroke="#3a2a22" stroke-width="4.5" stroke-linecap="round"><path d="M92 144 v18 M92 162 l-9 7 M92 162 l9 7"/><path d="M120 144 v18 M120 162 l-9 7 M120 162 l9 7"/></g>
-    </svg>
+    <img class="deal-hen" src="dealer-hen.png" alt="the dealer hen" />
   </div>
   <div class="deal-controls">
     <button class="deal-btn primary" onclick="dealAgain()">🐔 Deal again</button>
