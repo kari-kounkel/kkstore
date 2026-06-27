@@ -4,33 +4,35 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>K Co Store — Curated by Kari. Approved by Holy Spirit. Probably.</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Mono:wght@400;500&family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --slate:     #6B7FA3;
-    --slate-light: #EEF1F7;
-    --navy:      #1E2A6E;
-    --orange:    #E8845A;
-    --orange-light: #FEF2EC;
-    --pink:      #D94475;
-    --pink-light: #FCEEF4;
-    --lilac:     #B8BDD4;
-    --lilac-light: #F4F5FA;
+    --slate:     #8a7fa3;
+    --slate-light: #f3eef9;
+    --navy:      #3a2f50;
+    --orange:    #FF6A00;
+    --orange-light: #fff0e6;
+    --pink:      #E5006E;
+    --pink-light: #fde9f2;
+    --purple:    #8B3DFF;
+    --lilac:     #c9bfe0;
+    --lilac-light: #f5f0fb;
     --white:     #FFFFFF;
-    --off:       #F7F8FC;
-    --border:    #E4E7F0;
-    --text:      #1A1F35;
-    --muted:     #8B91A8;
-    --shadow:    0 2px 12px rgba(30,42,110,0.07);
-    --shadow-lg: 0 8px 32px rgba(30,42,110,0.13);
+    --off:       #FAF7FF;
+    --border:    #ece4f5;
+    --text:      #2a2340;
+    --muted:     #8f86a8;
+    --grad:      linear-gradient(120deg,#E5006E,#8B3DFF);
+    --shadow:    0 4px 16px rgba(139,61,255,0.08);
+    --shadow-lg: 0 16px 40px rgba(139,61,255,0.18);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: var(--white);
+    background: radial-gradient(ellipse at 50% 0%, #ffffff 0%, #faf5fe 55%, #f3e9fb 100%);
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Nunito Sans', system-ui, sans-serif;
     min-height: 100vh;
   }
 
@@ -61,13 +63,13 @@
   }
 
   .site-logo {
-    font-family: 'Playfair Display', serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-size: 26px;
     font-weight: 900;
-    color: var(--navy);
+    color: var(--pink);
     text-decoration: none;
   }
-  .site-logo em { color: var(--orange); font-style: italic; }
+  .site-logo em { color: var(--purple); font-style: italic; }
 
   .header-nav { display: flex; gap: 8px; align-items: center; }
 
@@ -98,7 +100,7 @@
 
   /* HERO */
   .store-hero {
-    background: linear-gradient(135deg, var(--navy) 0%, #2B3A8A 60%, #3D4FA0 100%);
+    background: linear-gradient(135deg, #E5006E 0%, #8B3DFF 100%);
     padding: 64px 48px 56px;
     position: relative;
     overflow: hidden;
@@ -139,7 +141,7 @@
   }
 
   .hero-text h1 {
-    font-family: 'Playfair Display', serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-size: clamp(42px, 6vw, 76px);
     font-weight: 900;
     color: var(--white);
@@ -311,7 +313,7 @@
   }
 
   .card-title {
-    font-family: 'Playfair Display', serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-size: 17px;
     font-weight: 700;
     color: var(--navy);
@@ -340,7 +342,7 @@
   }
 
   .card-price {
-    font-family: 'Playfair Display', serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-size: 22px;
     font-weight: 900;
     color: var(--navy);
@@ -440,7 +442,7 @@
   }
 
   .modal-title {
-    font-family: 'Playfair Display', serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-size: 26px;
     font-weight: 900;
     color: var(--navy);
@@ -448,7 +450,7 @@
   }
 
   .modal-price {
-    font-family: 'Playfair Display', serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-size: 40px;
     font-weight: 900;
     color: var(--orange);
@@ -476,7 +478,7 @@
     border: none;
     padding: 16px 24px;
     border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Nunito Sans', system-ui, sans-serif;
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
@@ -516,7 +518,7 @@
     grid-column: 1 / -1;
     text-align: center;
     padding: 80px 20px;
-    font-family: 'Playfair Display', serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-size: 20px;
     font-style: italic;
     color: var(--muted);
@@ -535,7 +537,7 @@
   }
 
   .footer-logo {
-    font-family: 'Playfair Display', serif;
+    font-family: Georgia, 'Times New Roman', serif;
     font-size: 24px;
     font-weight: 900;
   }
