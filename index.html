@@ -594,6 +594,29 @@
   .cart-note{font-size:12px;color:#999;margin-bottom:14px;}
   .cart-checkout{width:100%;padding:14px;background:var(--navy,#1E2A6E);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
   .cart-checkout:disabled{opacity:.5;cursor:default;}
+  /* DEAL FRONT — chicken dealing the latest offerings */
+  #deal-front{position:fixed;inset:0;z-index:1500;background:radial-gradient(ellipse at 50% 0%,#fff 0%,var(--off) 55%,#f8e9df 100%);display:flex;flex-direction:column;overflow:hidden;}
+  #deal-front.hidden{display:none;}
+  .deal-head{text-align:center;padding:34px 20px 0;flex-shrink:0;}
+  .deal-eyebrow{font-family:'Caveat',cursive;font-weight:700;font-size:26px;color:var(--pink);transform:rotate(-2deg);}
+  .deal-title{font-family:Georgia,'Times New Roman',serif;font-weight:700;font-size:clamp(32px,7vw,58px);line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .deal-sub{font-family:'Caveat',cursive;font-weight:700;font-size:21px;color:var(--muted);margin-top:6px;}
+  .deal-stage{flex:1;position:relative;min-height:300px;}
+  .deal-card{position:absolute;width:190px;height:270px;border-radius:16px;background:#fff;border:1px solid var(--border);box-shadow:0 16px 40px -14px rgba(0,0,0,.3);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;opacity:0;transition:left .55s cubic-bezier(.2,1,.3,1),top .55s cubic-bezier(.2,1,.3,1),transform .55s cubic-bezier(.2,1,.3,1),opacity .4s;}
+  .deal-card:hover{transform:translateY(-8px) rotate(0deg) scale(1.03)!important;z-index:50;}
+  .dc-img{height:158px;background:var(--lilac-light);display:flex;align-items:center;justify-content:center;font-size:42px;overflow:hidden;}
+  .dc-img img{width:100%;height:100%;object-fit:cover;}
+  .dc-body{padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:5px;}
+  .dc-title{font-family:Georgia,'Times New Roman',serif;font-size:14px;color:var(--text);line-height:1.2;flex:1;}
+  .dc-price{font-weight:800;color:var(--pink);font-size:15px;}
+  .dc-add{background:var(--grad);color:#fff;border:none;border-radius:20px;padding:8px;font-weight:800;font-size:10px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;}
+  .deal-hen{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:104px;pointer-events:none;z-index:60;}
+  .deal-cart{position:absolute;top:18px;right:20px;background:#fff;border:1px solid var(--border);border-radius:30px;padding:8px 16px;font-weight:800;font-size:13px;cursor:pointer;z-index:70;}
+  .deal-controls{flex-shrink:0;text-align:center;padding:0 20px 24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .deal-btn{font-family:'Nunito Sans',system-ui,sans-serif;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:30px;padding:13px 24px;cursor:pointer;border:none;}
+  .deal-btn.primary{background:var(--grad);color:#fff;box-shadow:0 8px 20px -6px var(--pink);}
+  .deal-btn.ghost{background:#fff;border:1.5px solid var(--border);color:var(--text);}
+  @media(max-width:640px){ .deal-card{width:150px;height:220px;} .dc-img{height:120px;} }
 </style>
 </head>
 <body>
@@ -798,6 +821,34 @@ function closeModal() {
   document.body.style.overflow = '';
   history.pushState({}, '', '/');
 }
+function showShop(){ var d=document.getElementById('deal-front'); if(d) d.classList.add('hidden'); }
+function dealAgain(){ dealCards(); }
+function dealCards(){
+  var stage=document.getElementById('deal-stage'); if(!stage) return;
+  Array.prototype.forEach.call(stage.querySelectorAll('.deal-card'), function(n){ n.remove(); });
+  var pool=(typeof products!=='undefined'&&products?products:[]).filter(function(p){ return p.status==='live'||p.status==='preorder'; });
+  pool=pool.slice().sort(function(){ return Math.random()-0.5; });
+  var mobile = stage.clientWidth < 640, cw = mobile?150:190;
+  pool=pool.slice(0, Math.min(pool.length, mobile?4:6));
+  var W=stage.clientWidth, H=stage.clientHeight, n=pool.length;
+  var gap=n>1 ? Math.min(cw+18, (W-cw-24)/(n-1)) : 0;
+  var startX=(W-((n-1)*gap))/2 - cw/2;
+  pool.forEach(function(p,i){
+    var card=document.createElement('div'); card.className='deal-card';
+    var cover=(p.images&&p.images.length)?p.images[0]:p.image_url;
+    var price = p.price!=null ? ('$'+parseFloat(p.price).toFixed(2)) : (p.status==='preorder'?'Pre-order':'');
+    var buyable = (p.status==='live' && p.price!=null);
+    var btn = buyable
+      ? '<button class="dc-add" onclick="event.stopPropagation();addToCart(\''+p.id+'\')">Add to cart</button>'
+      : '<button class="dc-add" style="background:var(--slate)" onclick="event.stopPropagation();showShop();openModal(\''+p.id+'\')">'+(p.status==='preorder'?'Pre-order':'Take a look')+'</button>';
+    card.innerHTML='<div class="dc-img">'+(cover?'<img src="'+cover+'">':'📦')+'</div><div class="dc-body"><div class="dc-title">'+p.title+'</div><div class="dc-price">'+price+'</div>'+btn+'</div>';
+    card.onclick=function(){ showShop(); openModal(p.id); };
+    stage.appendChild(card);
+    var tx=startX+i*gap, ty=Math.max(8, H*0.16 + Math.abs(i-(n-1)/2)*15), rot=(i-(n-1)/2)*6;
+    card.style.left=(W/2-cw/2)+'px'; card.style.top=(H-130)+'px'; card.style.transform='rotate(0deg) scale(.7)';
+    (function(c){ setTimeout(function(){ c.style.opacity='1'; c.style.left=tx+'px'; c.style.top=ty+'px'; c.style.transform='rotate('+rot+'deg)'; }, 140+i*130); })(card);
+  });
+}
 
 document.getElementById('modal-overlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
@@ -827,7 +878,8 @@ async function init() {
     render(products);
 
     const slug = window.location.pathname.replace(/^\//, '');
-    if (slug) { const p = products.find(x => x.slug === slug); if (p) openModal(p.id); }
+    if (slug) { const p = products.find(x => x.slug === slug); if (p) { showShop(); openModal(p.id); } else { dealCards(); } }
+    else { dealCards(); }
   } catch(e) {
     document.getElementById('product-grid').innerHTML = '<div class="state-msg">Trouble loading. Try refreshing!</div>';
     console.error(e);
@@ -837,6 +889,33 @@ async function init() {
 init();
 </script>
 <script src="https://chat.karikounkel.com/widget.js" defer></script>
+<div id="deal-front">
+  <button class="deal-cart" onclick="openCart()">🛒 Cart</button>
+  <div class="deal-head">
+    <div class="deal-eyebrow">fresh from the coop</div>
+    <div class="deal-title">The Latest Offerings</div>
+    <div class="deal-sub">let the hen deal you something good 🐔</div>
+  </div>
+  <div class="deal-stage" id="deal-stage">
+    <svg class="deal-hen" viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="none" stroke="#3a2a22" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M150 70 q34 -24 34 6 M150 84 q40 -14 40 16 M150 98 q34 -2 30 26" stroke="#F07830"/>
+        <ellipse cx="104" cy="100" rx="60" ry="46" fill="#fff"/>
+        <circle cx="58" cy="62" r="27" fill="#fff"/>
+        <path d="M62 96 q-22 -8 -40 6 q20 14 42 4" fill="none"/>
+        <path d="M34 60 l-18 6 l18 8 z" fill="#F07830" stroke="#F07830"/>
+      </g>
+      <path d="M46 38 q5 -13 11 -2 q5 -13 11 -2 q5 -11 9 0" fill="#E0381F" stroke="#E0381F" stroke-width="2"/>
+      <path d="M40 74 q-3 14 5 16 q7 -2 4 -16" fill="#E0381F"/>
+      <circle cx="54" cy="56" r="3.4" fill="#3a2a22"/>
+      <g stroke="#3a2a22" stroke-width="4.5" stroke-linecap="round"><path d="M92 144 v18 M92 162 l-9 7 M92 162 l9 7"/><path d="M120 144 v18 M120 162 l-9 7 M120 162 l9 7"/></g>
+    </svg>
+  </div>
+  <div class="deal-controls">
+    <button class="deal-btn primary" onclick="dealAgain()">🐔 Deal again</button>
+    <button class="deal-btn ghost" onclick="showShop()">see the whole shop →</button>
+  </div>
+</div>
 <div class="cart-overlay" id="cart-overlay" onclick="if(event.target===this)closeCart()">
   <div class="cart-panel">
     <div class="cart-head"><span>Your Cart</span><button onclick="closeCart()" aria-label="Close">&times;</button></div>
