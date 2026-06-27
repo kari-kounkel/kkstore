@@ -677,8 +677,13 @@
       </div>
 
       <div class="form-field">
-        <label class="form-label">Image URL</label>
-        <input type="text" class="form-input" id="f-image" placeholder="https://... or /images/product.png">
+        <label class="form-label">Images (first = cover) — upload one or three</label>
+        <input type="file" id="f-imgfile" accept="image/*" multiple onchange="uploadImgs(this.files); this.value='';" style="font-size:13px;">
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <input type="text" class="form-input" id="f-imgurl" placeholder="…or paste an image URL" style="flex:1;">
+          <button type="button" onclick="addImgUrl()" style="padding:0 14px;border:1px solid var(--border);background:var(--navy);color:#fff;border-radius:4px;cursor:pointer;font-size:13px;">Add</button>
+        </div>
+        <div id="img-thumbs" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;"></div>
       </div>
 
       <div class="form-field">
@@ -855,7 +860,8 @@
     document.getElementById('f-status').value = product ? product.status : 'live';
     document.getElementById('f-stripe-account').value = product ? product.stripe_account || 'KCO' : 'KCO';
     document.getElementById('f-stripe-price').value = product ? product.payment_link || '' : '';
-    document.getElementById('f-image').value = product ? product.image_url || '' : '';
+    imgList = (product && Array.isArray(product.images) && product.images.length) ? product.images.slice() : (product && product.image_url ? [product.image_url] : []);
+    renderImgs();
     document.getElementById('f-download').value = product ? product.download_url || '' : '';
     document.getElementById('f-featured').value = product ? String(product.featured) : 'false';
     document.getElementById('f-sort').value = product ? product.sort_order || 0 : 0;
@@ -888,6 +894,37 @@
     return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   }
 
+  let imgList = [];
+  function renderImgs() {
+    const w = document.getElementById('img-thumbs');
+    if (!w) return;
+    w.innerHTML = imgList.map(function(u,i){
+      return '<div style="position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:2px solid '+(i===0?'#16a34a':'#ddd')+';">'+
+        '<img src="'+u+'" style="width:100%;height:100%;object-fit:cover;">'+
+        '<button type="button" onclick="rmImg('+i+')" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:11px;line-height:1;padding:0;">&times;</button>'+
+        (i===0?'<span style="position:absolute;bottom:0;left:0;right:0;background:#16a34a;color:#fff;font-size:9px;text-align:center;line-height:1.4;">cover</span>':'')+
+      '</div>';
+    }).join('');
+  }
+  function rmImg(i){ imgList.splice(i,1); renderImgs(); }
+  function addImgUrl(){ const el=document.getElementById('f-imgurl'); const u=el.value.trim(); if(u){ imgList.push(u); el.value=''; renderImgs(); } }
+  async function uploadImgs(files){
+    for (const file of files){
+      if(!file.type || file.type.indexOf('image/')!==0) continue;
+      showToast('Uploading '+file.name+'…','success');
+      const ext=(file.name.split('.').pop()||'png').toLowerCase();
+      const path=Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.'+ext;
+      try{
+        const res=await fetch(SUPABASE_URL+'/storage/v1/object/product-images/'+path,{
+          method:'POST',
+          headers:{ 'apikey':SUPABASE_ANON_KEY, 'Authorization':'Bearer '+SUPABASE_ANON_KEY, 'x-upsert':'true', 'Content-Type':file.type },
+          body:file
+        });
+        if(res.ok){ imgList.push(SUPABASE_URL+'/storage/v1/object/public/product-images/'+path); renderImgs(); }
+        else { showToast('Upload failed ('+res.status+')','error'); }
+      }catch(e){ showToast('Upload error','error'); }
+    }
+  }
   async function saveProduct() {
     const title = document.getElementById('f-title').value.trim();
     if (!title) { showToast('Title is required!', 'error'); return; }
@@ -905,7 +942,8 @@
       status: document.getElementById('f-status').value,
       stripe_account: document.getElementById('f-stripe-account').value,
       payment_link: document.getElementById('f-stripe-price').value.trim() || null,
-      image_url: document.getElementById('f-image').value.trim() || null,
+      image_url: imgList[0] || null,
+      images: imgList,
       download_url: document.getElementById('f-download').value.trim() || null,
       featured: document.getElementById('f-featured').value === 'true',
       sort_order: parseInt(document.getElementById('f-sort').value) || 0,
