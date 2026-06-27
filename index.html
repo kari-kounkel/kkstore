@@ -616,6 +616,9 @@
   .deal-btn{font-family:'Nunito Sans',system-ui,sans-serif;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;border-radius:30px;padding:13px 24px;cursor:pointer;border:none;}
   .deal-btn.primary{background:var(--grad);color:#fff;box-shadow:0 8px 20px -6px var(--pink);}
   .deal-btn.ghost{background:#fff;border:1.5px solid var(--border);color:var(--text);}
+  .deal-filters{flex-shrink:0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 20px 2px;}
+  .deal-chip{font-family:'Nunito Sans',system-ui,sans-serif;font-weight:700;font-size:12px;border:1.5px solid var(--border);background:#fff;color:var(--muted);border-radius:30px;padding:7px 15px;cursor:pointer;}
+  .deal-chip.active{background:var(--grad);color:#fff;border-color:transparent;}
   @media(max-width:640px){ .deal-card{width:150px;height:220px;} .dc-img{height:120px;} }
 </style>
 </head>
@@ -823,10 +826,21 @@ function closeModal() {
 }
 function showShop(){ var d=document.getElementById('deal-front'); if(d) d.classList.add('hidden'); }
 function dealAgain(){ dealCards(); }
+var dealFilter='all';
+function buildDealFilters(){
+  var fc=document.getElementById('deal-filters'); if(!fc || fc.dataset.built) return; fc.dataset.built='1';
+  var all=document.createElement('button'); all.className='deal-chip active'; all.textContent='All'; all.onclick=function(){ setDealFilter('all', all); }; fc.appendChild(all);
+  (typeof categories!=='undefined'&&categories?categories:[]).forEach(function(cat){
+    var b=document.createElement('button'); b.className='deal-chip';
+    b.textContent=((typeof EMOJI!=='undefined'&&EMOJI[cat.slug])?EMOJI[cat.slug]+' ':'')+cat.name;
+    b.onclick=function(){ setDealFilter(cat.slug, b); }; fc.appendChild(b);
+  });
+}
+function setDealFilter(slug, btn){ dealFilter=slug; Array.prototype.forEach.call(document.querySelectorAll('#deal-filters .deal-chip'), function(x){ x.classList.remove('active'); }); btn.classList.add('active'); dealCards(); }
 function dealCards(){
   var stage=document.getElementById('deal-stage'); if(!stage) return;
   Array.prototype.forEach.call(stage.querySelectorAll('.deal-card'), function(n){ n.remove(); });
-  var pool=(typeof products!=='undefined'&&products?products:[]).filter(function(p){ return p.status==='live'||p.status==='preorder'; });
+  var pool=(typeof products!=='undefined'&&products?products:[]).filter(function(p){ return (p.status==='live'||p.status==='preorder') && (dealFilter==='all' || (p.categories||[]).indexOf(dealFilter)>=0); });
   pool=pool.slice().sort(function(){ return Math.random()-0.5; });
   var mobile = stage.clientWidth < 640, cw = mobile?150:190;
   pool=pool.slice(0, Math.min(pool.length, mobile?4:6));
@@ -877,6 +891,7 @@ async function init() {
     document.querySelector('[data-cat="all"]').onclick = () => filter('all');
     render(products);
 
+    buildDealFilters();
     const slug = window.location.pathname.replace(/^\//, '');
     if (slug) { const p = products.find(x => x.slug === slug); if (p) { showShop(); openModal(p.id); } else { dealCards(); } }
     else { dealCards(); }
@@ -896,6 +911,7 @@ init();
     <div class="deal-title">The Latest Offerings</div>
     <div class="deal-sub">let the hen deal you something good 🐔</div>
   </div>
+  <div class="deal-filters" id="deal-filters"></div>
   <div class="deal-stage" id="deal-stage">
     <svg class="deal-hen" viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g fill="none" stroke="#3a2a22" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
