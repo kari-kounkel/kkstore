@@ -619,6 +619,8 @@
   .deal-filters{flex-shrink:0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 20px 2px;}
   .deal-chip{font-family:'Nunito Sans',system-ui,sans-serif;font-weight:700;font-size:12px;border:1.5px solid var(--border);background:#fff;color:var(--muted);border-radius:30px;padding:7px 15px;cursor:pointer;}
   .deal-chip.active{background:var(--grad);color:#fff;border-color:transparent;}
+  .chicken-tracks{position:absolute;bottom:22px;left:0;right:0;display:flex;justify-content:center;opacity:.20;pointer-events:none;z-index:1;}
+  .chicken-tracks svg{width:min(680px,92%);height:auto;}
   @media(max-width:640px){ .deal-card{width:150px;height:220px;} .dc-img{height:120px;} }
 </style>
 </head>
@@ -913,6 +915,18 @@ init();
   </div>
   <div class="deal-filters" id="deal-filters"></div>
   <div class="deal-stage" id="deal-stage">
+    <div class="chicken-tracks"><svg viewBox="0 0 700 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g stroke="#C26A1E" stroke-width="3" stroke-linecap="round" fill="none">
+      <g transform="translate(30,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+      <g transform="translate(100,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+      <g transform="translate(170,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+      <g transform="translate(240,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+      <g transform="translate(310,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+      <g transform="translate(380,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+      <g transform="translate(450,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+      <g transform="translate(520,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+      <g transform="translate(590,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+      <g transform="translate(660,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
+    </g></svg></div>
     <img class="deal-hen" src="dealer-hen.png" alt="the dealer hen" />
   </div>
   <div class="deal-controls">
@@ -940,7 +954,7 @@ init();
   function changeQty(id,d){ var c=getCart(); var it=c.find(function(i){return i.id===id;}); if(!it) return; it.qty+=d; if(it.qty<=0) c.splice(c.indexOf(it),1); setCart(c); renderCart(); }
   function renderCart(){
     var c=getCart(), wrap=document.getElementById('cart-items'), sub=0;
-    if(!c.length){ wrap.innerHTML='<div class="cart-empty">Your cart is empty.</div>'; document.getElementById('cart-subtotal').textContent='$0.00'; document.getElementById('cart-checkout').disabled=true; return; }
+    if(!c.length){ wrap.innerHTML='<div class="cart-empty"><img src="chickens/fill-that-cart.png" alt="" style="width:120px;height:auto;margin-bottom:6px;"><br>Your cart\'s empty — let the hen help you fill it. 🐔</div>'; document.getElementById('cart-subtotal').textContent='$0.00'; document.getElementById('cart-checkout').disabled=true; return; }
     document.getElementById('cart-checkout').disabled=false;
     wrap.innerHTML=c.map(function(i){
       var p=(typeof products!=='undefined'&&products?products:[]).find(function(x){return x.id===i.id;}); if(!p) return '';
