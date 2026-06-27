@@ -569,6 +569,29 @@
     .nav-link { display: none; }
     .store-footer { padding: 32px 20px; }
   }
+  /* CART */
+  .nav-cart{position:relative;background:none;border:none;cursor:pointer;font-size:21px;padding:4px 8px;line-height:1;}
+  .cart-badge{position:absolute;top:-3px;right:-3px;background:var(--coral,#E8845A);color:#fff;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:inherit;}
+  .cart-overlay{position:fixed;inset:0;background:rgba(20,20,40,.4);z-index:2000;display:none;justify-content:flex-end;}
+  .cart-overlay.open{display:flex;}
+  .cart-panel{width:380px;max-width:90vw;height:100%;background:#fff;display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.2);}
+  .cart-head{display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid var(--border,#eee);font-weight:700;font-size:18px;}
+  .cart-head button{background:none;border:none;font-size:22px;cursor:pointer;color:#888;}
+  .cart-items{flex:1;overflow-y:auto;padding:8px 18px;}
+  .cart-empty{text-align:center;color:#999;padding:50px 20px;}
+  .cart-item{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border,#f0f0f0);}
+  .cart-thumb{width:54px;height:54px;border-radius:8px;overflow:hidden;background:#f4f2ee;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:22px;}
+  .cart-thumb img{width:100%;height:100%;object-fit:cover;}
+  .cart-meta{flex:1;min-width:0;}
+  .cart-name{font-weight:600;font-size:14px;line-height:1.2;}
+  .cart-price{font-size:13px;color:#888;margin-top:2px;}
+  .cart-qty{display:flex;align-items:center;gap:8px;}
+  .cart-qty button{width:26px;height:26px;border:1px solid var(--border,#ddd);background:#fff;border-radius:6px;cursor:pointer;font-size:15px;line-height:1;}
+  .cart-foot{border-top:1px solid var(--border,#eee);padding:18px 22px 24px;}
+  .cart-total{display:flex;justify-content:space-between;font-size:16px;margin-bottom:4px;}
+  .cart-note{font-size:12px;color:#999;margin-bottom:14px;}
+  .cart-checkout{width:100%;padding:14px;background:var(--navy,#1E2A6E);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;}
+  .cart-checkout:disabled{opacity:.5;cursor:default;}
 </style>
 </head>
 <body>
@@ -583,6 +606,7 @@
     <a href="https://karikounkel.com" class="nav-link">← Kari's Site</a>
     <a href="/admin.html" class="nav-link">Admin</a>
     <a href="https://cal.com/kkounkel/quick-clarity" class="nav-cta" target="_blank">Book a Call</a>
+    <button class="nav-cart" onclick="openCart()" aria-label="Cart">🛒<span class="cart-badge" id="cart-count">0</span></button>
   </nav>
 </header>
 
@@ -751,10 +775,9 @@ function openModal(id) {
     if (p.download_url) { btn.onclick = () => { window.location.href = p.download_url; }; }
     else { btn.onclick = () => alert('Free access coming soon!'); }
   } else {
-    btn.textContent = 'Buy Now — ' + priceText(p);
+    btn.textContent = 'Add to Cart — ' + priceText(p);
     btn.className = 'btn-buy';
-    if (p.payment_link) { btn.onclick = () => { window.location.href = p.payment_link; }; }
-    else { btn.onclick = () => alert('Checkout coming soon! Email kari@karikounkel.com to purchase.'); }
+    btn.onclick = () => { addToCart(p.id); document.getElementById('modal-overlay').classList.remove('open'); };
   }
 
   document.getElementById('share-btn').onclick = () => {
@@ -812,5 +835,52 @@ async function init() {
 init();
 </script>
 <script src="https://chat.karikounkel.com/widget.js" defer></script>
+<div class="cart-overlay" id="cart-overlay" onclick="if(event.target===this)closeCart()">
+  <div class="cart-panel">
+    <div class="cart-head"><span>Your Cart</span><button onclick="closeCart()" aria-label="Close">&times;</button></div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-foot">
+      <div class="cart-total">Subtotal <strong id="cart-subtotal">$0.00</strong></div>
+      <div class="cart-note">Shipping &amp; tax calculated at checkout</div>
+      <button class="cart-checkout" id="cart-checkout" onclick="checkout()">Checkout &rarr;</button>
+    </div>
+  </div>
+</div>
+<script>
+  var CART_KEY = 'kkcart';
+  function getCart(){ try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; } catch(e){ return []; } }
+  function setCart(c){ localStorage.setItem(CART_KEY, JSON.stringify(c)); updateCartCount(); }
+  function updateCartCount(){ var n = getCart().reduce(function(s,i){ return s+i.qty; },0); var el=document.getElementById('cart-count'); if(el) el.textContent=n; }
+  function addToCart(id){ var c=getCart(); var ex=c.find(function(i){return i.id===id;}); if(ex) ex.qty++; else c.push({id:id, qty:1}); setCart(c); openCart(); }
+  function changeQty(id,d){ var c=getCart(); var it=c.find(function(i){return i.id===id;}); if(!it) return; it.qty+=d; if(it.qty<=0) c.splice(c.indexOf(it),1); setCart(c); renderCart(); }
+  function renderCart(){
+    var c=getCart(), wrap=document.getElementById('cart-items'), sub=0;
+    if(!c.length){ wrap.innerHTML='<div class="cart-empty">Your cart is empty.</div>'; document.getElementById('cart-subtotal').textContent='$0.00'; document.getElementById('cart-checkout').disabled=true; return; }
+    document.getElementById('cart-checkout').disabled=false;
+    wrap.innerHTML=c.map(function(i){
+      var p=(typeof products!=='undefined'&&products?products:[]).find(function(x){return x.id===i.id;}); if(!p) return '';
+      var price=parseFloat(p.price)||0; sub+=price*i.qty;
+      var cover=(p.images&&p.images.length)?p.images[0]:p.image_url;
+      return '<div class="cart-item"><div class="cart-thumb">'+(cover?'<img src="'+cover+'">':'📦')+'</div>'+
+        '<div class="cart-meta"><div class="cart-name">'+p.title+'</div><div class="cart-price">$'+price.toFixed(2)+'</div></div>'+
+        '<div class="cart-qty"><button onclick="changeQty(\''+i.id+'\',-1)">&minus;</button><span>'+i.qty+'</span><button onclick="changeQty(\''+i.id+'\',1)">+</button></div></div>';
+    }).join('');
+    document.getElementById('cart-subtotal').textContent='$'+sub.toFixed(2);
+  }
+  function openCart(){ renderCart(); document.getElementById('cart-overlay').classList.add('open'); }
+  function closeCart(){ document.getElementById('cart-overlay').classList.remove('open'); }
+  async function checkout(){
+    var c=getCart(); if(!c.length) return;
+    var btn=document.getElementById('cart-checkout'); btn.disabled=true; btn.textContent='Loading…';
+    try{
+      var res=await fetch(SUPABASE_URL+'/functions/v1/create-checkout',{ method:'POST',
+        headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
+        body:JSON.stringify({items:c, origin:location.origin}) });
+      var j=await res.json();
+      if(j.url){ window.location.href=j.url; } else { alert(j.error||'Checkout isn\'t live yet — almost there!'); btn.disabled=false; btn.textContent='Checkout →'; }
+    }catch(e){ alert('Checkout isn\'t live yet — almost there!'); btn.disabled=false; btn.textContent='Checkout →'; }
+  }
+  updateCartCount();
+</script>
 </body>
 </html>
