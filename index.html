@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>K Co Store — Curated by Kari. Approved by Holy Spirit. Probably.</title>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Mono:wght@400;500&family=Nunito+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WHKMKCD1SD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-WHKMKCD1SD');
+</script>
 <style>
   :root {
     --slate:     #a3897a;
@@ -619,8 +627,8 @@
   .deal-filters{flex-shrink:0;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:14px 20px 2px;}
   .deal-chip{font-family:'Nunito Sans',system-ui,sans-serif;font-weight:700;font-size:12px;border:1.5px solid var(--border);background:#fff;color:var(--muted);border-radius:30px;padding:7px 15px;cursor:pointer;}
   .deal-chip.active{background:var(--grad);color:#fff;border-color:transparent;}
-  .chicken-tracks{position:absolute;bottom:22px;left:0;right:0;display:flex;justify-content:center;opacity:.20;pointer-events:none;z-index:1;}
-  .chicken-tracks svg{width:min(680px,92%);height:auto;}
+  .chicken-tracks{position:absolute;inset:0;opacity:.22;pointer-events:none;z-index:0;}
+  .ptrack{position:absolute;width:26px;height:22px;background-repeat:no-repeat;background-position:center;background-size:contain;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -10 28 20'%3E%3Cpath d='M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0' stroke='%23C26A1E' stroke-width='3' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");}
   @media(max-width:640px){ .deal-card{width:150px;height:220px;} .dc-img{height:120px;} }
 </style>
 </head>
@@ -907,6 +915,21 @@ init();
 </script>
 <script src="https://chat.karikounkel.com/widget.js" defer></script>
 <div id="deal-front">
+  <div class="chicken-tracks" aria-hidden="true">
+    <span class="ptrack" style="top:5%;left:7%;transform:rotate(90deg)"></span>
+    <span class="ptrack" style="top:15%;left:6%;transform:rotate(90deg)"></span>
+    <span class="ptrack" style="top:25%;left:8%;transform:rotate(88deg)"></span>
+    <span class="ptrack" style="top:35%;left:6%;transform:rotate(92deg)"></span>
+    <span class="ptrack" style="top:45%;left:8%;transform:rotate(90deg)"></span>
+    <span class="ptrack" style="top:55%;left:7%;transform:rotate(90deg)"></span>
+    <span class="ptrack" style="top:64%;left:9%;transform:rotate(72deg)"></span>
+    <span class="ptrack" style="top:72%;left:13%;transform:rotate(52deg)"></span>
+    <span class="ptrack" style="top:78%;left:19%;transform:rotate(34deg)"></span>
+    <span class="ptrack" style="top:83%;left:27%;transform:rotate(16deg)"></span>
+    <span class="ptrack" style="top:86%;left:36%;transform:rotate(4deg)"></span>
+    <span class="ptrack" style="top:88%;left:45%;transform:rotate(0deg)"></span>
+    <span class="ptrack" style="top:89%;left:50%;transform:rotate(0deg)"></span>
+  </div>
   <button class="deal-cart" onclick="openCart()">🛒 Cart</button>
   <div class="deal-head">
     <div class="deal-eyebrow">fresh from the coop</div>
@@ -915,18 +938,6 @@ init();
   </div>
   <div class="deal-filters" id="deal-filters"></div>
   <div class="deal-stage" id="deal-stage">
-    <div class="chicken-tracks"><svg viewBox="0 0 700 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g stroke="#C26A1E" stroke-width="3" stroke-linecap="round" fill="none">
-      <g transform="translate(30,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-      <g transform="translate(100,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-      <g transform="translate(170,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-      <g transform="translate(240,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-      <g transform="translate(310,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-      <g transform="translate(380,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-      <g transform="translate(450,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-      <g transform="translate(520,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-      <g transform="translate(590,28) rotate(-8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-      <g transform="translate(660,42) rotate(8)"><path d="M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0"/></g>
-    </g></svg></div>
     <img class="deal-hen" src="dealer-hen.png" alt="the dealer hen" />
   </div>
   <div class="deal-controls">
