@@ -274,7 +274,7 @@
   .card-image {
     width: 100%;
     aspect-ratio: 1 / 1;
-    background: var(--lilac-light);
+    background: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -285,9 +285,6 @@
     border-bottom: 1.5px solid var(--border);
   }
   .card-image img { width: 100%; height: 100%; object-fit: contain; display: block; }
-  /* tile bake-off: alternating backgrounds so Kari can compare white vs peach */
-  .tile-white { background: #ffffff !important; }
-  .tile-peach { background: var(--orange-light) !important; }
 
   .card-badge {
     position: absolute;
@@ -404,7 +401,7 @@
   }
 
   .modal-img {
-    background: var(--lilac-light);
+    background: #ffffff;
     border-radius: 20px 0 0 20px;
     display: flex;
     align-items: center;
@@ -617,7 +614,7 @@
   .deal-stage{flex:1;position:relative;min-height:300px;}
   .deal-card{position:absolute;width:190px;height:270px;border-radius:16px;background:#fff;border:1px solid var(--border);box-shadow:0 16px 40px -14px rgba(0,0,0,.3);overflow:hidden;cursor:pointer;display:flex;flex-direction:column;opacity:0;transition:left .55s cubic-bezier(.2,1,.3,1),top .55s cubic-bezier(.2,1,.3,1),transform .55s cubic-bezier(.2,1,.3,1),opacity .4s;}
   .deal-card:hover{transform:translateY(-8px) rotate(0deg) scale(1.03)!important;z-index:50;}
-  .dc-img{height:158px;background:var(--lilac-light);display:flex;align-items:center;justify-content:center;font-size:42px;overflow:hidden;padding:10px;}
+  .dc-img{height:158px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:42px;overflow:hidden;padding:10px;}
   .dc-img img{width:100%;height:100%;object-fit:contain;}
   .dc-body{padding:11px 13px;flex:1;display:flex;flex-direction:column;gap:5px;}
   .dc-title{font-family:Georgia,'Times New Roman',serif;font-size:14px;color:var(--text);line-height:1.2;flex:1;}
@@ -760,7 +757,7 @@ function cardHtml(p, i) {
   const typeIcon = p.product_type === 'digital' ? '⬇ Digital' : p.product_type === 'free' ? '🎁 Free' : '📦 Ships';
 
   return '<div class="product-card" onclick="openModal(\'' + p.id + '\')">' +
-    '<div class="card-image ' + ((i%2)?'tile-peach':'tile-white') + '">' + img + getBadge(p) + '</div>' +
+    '<div class="card-image">' + img + getBadge(p) + '</div>' +
     '<div class="card-body">' +
       '<div class="card-cats">' + cats + '</div>' +
       '<div class="card-title">' + p.title + '</div>' +
@@ -870,7 +867,7 @@ function dealCards(){
     var btn = buyable
       ? '<button class="dc-add" onclick="event.stopPropagation();addToCart(\''+p.id+'\')">Add to cart</button>'
       : '<button class="dc-add" style="background:var(--slate)" onclick="event.stopPropagation();showShop();openModal(\''+p.id+'\')">'+(p.status==='preorder'?'Pre-order':'Take a look')+'</button>';
-    card.innerHTML='<div class="dc-img '+(i%2?'tile-peach':'tile-white')+'">'+(cover?'<img src="'+cover+'">':'📦')+'</div><div class="dc-body"><div class="dc-title">'+p.title+'</div><div class="dc-price">'+price+'</div>'+btn+'</div>';
+    card.innerHTML='<div class="dc-img">'+(cover?'<img src="'+cover+'">':'📦')+'</div><div class="dc-body"><div class="dc-title">'+p.title+'</div><div class="dc-price">'+price+'</div>'+btn+'</div>';
     card.onclick=function(){ showShop(); openModal(p.id); };
     stage.appendChild(card);
     var tx=startX+i*gap, ty=Math.max(8, H*0.16 + Math.abs(i-(n-1)/2)*15), rot=(i-(n-1)/2)*6;
