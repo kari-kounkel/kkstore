@@ -285,6 +285,9 @@
     border-bottom: 1.5px solid var(--border);
   }
   .card-image img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  /* tile bake-off: alternating backgrounds so Kari can compare white vs peach */
+  .tile-white { background: #ffffff !important; }
+  .tile-peach { background: var(--orange-light) !important; }
 
   .card-badge {
     position: absolute;
@@ -748,7 +751,7 @@ function getBadge(p) {
   return '';
 }
 
-function cardHtml(p) {
+function cardHtml(p, i) {
   const cats = (p.categories||[]).map(c => '<span class="card-cat">' + (EMOJI[c]||'') + ' ' + c + '</span>').join('');
   const cover = (p.images && p.images.length) ? p.images[0] : p.image_url;
   const img = cover
@@ -757,7 +760,7 @@ function cardHtml(p) {
   const typeIcon = p.product_type === 'digital' ? '⬇ Digital' : p.product_type === 'free' ? '🎁 Free' : '📦 Ships';
 
   return '<div class="product-card" onclick="openModal(\'' + p.id + '\')">' +
-    '<div class="card-image">' + img + getBadge(p) + '</div>' +
+    '<div class="card-image ' + ((i%2)?'tile-peach':'tile-white') + '">' + img + getBadge(p) + '</div>' +
     '<div class="card-body">' +
       '<div class="card-cats">' + cats + '</div>' +
       '<div class="card-title">' + p.title + '</div>' +
@@ -771,7 +774,7 @@ function render(list) {
   const grid = document.getElementById('product-grid');
   document.getElementById('results-count').textContent = list.length + ' product' + (list.length !== 1 ? 's' : '');
   if (!list.length) { grid.innerHTML = '<div class="state-msg">Nothing here yet — check back soon.</div>'; return; }
-  grid.innerHTML = list.map(cardHtml).join('');
+  grid.innerHTML = list.map(function(p, i){ return cardHtml(p, i); }).join('');
 }
 
 function filter(cat) {
@@ -867,7 +870,7 @@ function dealCards(){
     var btn = buyable
       ? '<button class="dc-add" onclick="event.stopPropagation();addToCart(\''+p.id+'\')">Add to cart</button>'
       : '<button class="dc-add" style="background:var(--slate)" onclick="event.stopPropagation();showShop();openModal(\''+p.id+'\')">'+(p.status==='preorder'?'Pre-order':'Take a look')+'</button>';
-    card.innerHTML='<div class="dc-img">'+(cover?'<img src="'+cover+'">':'📦')+'</div><div class="dc-body"><div class="dc-title">'+p.title+'</div><div class="dc-price">'+price+'</div>'+btn+'</div>';
+    card.innerHTML='<div class="dc-img '+(i%2?'tile-peach':'tile-white')+'">'+(cover?'<img src="'+cover+'">':'📦')+'</div><div class="dc-body"><div class="dc-title">'+p.title+'</div><div class="dc-price">'+price+'</div>'+btn+'</div>';
     card.onclick=function(){ showShop(); openModal(p.id); };
     stage.appendChild(card);
     var tx=startX+i*gap, ty=Math.max(8, H*0.16 + Math.abs(i-(n-1)/2)*15), rot=(i-(n-1)/2)*6;
