@@ -252,6 +252,11 @@
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 24px;
   }
+  .shop-section { margin: 0 0 42px; }
+  .section-head { display:flex; align-items:center; gap:14px; margin:0 0 18px; padding-bottom:10px; border-bottom:2px solid var(--border); }
+  .section-head img { width:60px; height:60px; object-fit:contain; flex-shrink:0; }
+  .section-head h2 { font-family:Georgia,'Times New Roman',serif; font-size:24px; font-weight:700; color:var(--navy); margin:0; flex:1; }
+  .section-head .sec-count { font-family:'DM Mono',monospace; font-size:12px; color:var(--muted); background:var(--lilac-light); padding:3px 11px; border-radius:20px; }
 
   /* CARD */
   .product-card {
@@ -373,7 +378,7 @@
     position: fixed;
     inset: 0;
     background: rgba(30,42,110,0.55);
-    z-index: 1000;
+    z-index: 2000;
     align-items: center;
     justify-content: center;
     padding: 24px;
@@ -675,7 +680,7 @@
   <div class="results-row">
     <span class="results-count" id="results-count">Loading...</span>
   </div>
-  <div class="product-grid" id="product-grid">
+  <div id="product-grid">
     <div class="state-msg">Loading the good stuff...</div>
   </div>
 </main>
@@ -769,17 +774,50 @@ function cardHtml(p, i) {
   '</div>';
 }
 
+function cardGrid(list){ return '<div class="product-grid">' + list.map(function(p, i){ return cardHtml(p, i); }).join('') + '</div>'; }
+
 function render(list) {
   const grid = document.getElementById('product-grid');
   document.getElementById('results-count').textContent = list.length + ' product' + (list.length !== 1 ? 's' : '');
   if (!list.length) { grid.innerHTML = '<div class="state-msg">Nothing here yet — check back soon.</div>'; return; }
-  grid.innerHTML = list.map(function(p, i){ return cardHtml(p, i); }).join('');
+  grid.innerHTML = cardGrid(list);
+}
+
+var SECTION_ORDER = ['books','marbleverse','faith','workbooks','stickers','financial','programs','tools','apps'];
+var SECTION_HEN = { books:'fresh-from-the-coop', marbleverse:'happy-dance', faith:'made-with-love', workbooks:'good-idea', stickers:'sale-alert', financial:'best-price', programs:'first-coffee', tools:'coop-approved', apps:'new-arrival' };
+var CAT_NAME = {};
+function sortInSection(a,b){
+  var rank=function(p){ return p.status==='live'?0:(p.status==='preorder'?1:2); };
+  if(rank(a)!==rank(b)) return rank(a)-rank(b);
+  if((a.sort_order||0)!==(b.sort_order||0)) return (a.sort_order||0)-(b.sort_order||0);
+  return (a.title||'').localeCompare(b.title||'');
+}
+function renderAll(){
+  var grid=document.getElementById('product-grid');
+  var visible=products.filter(function(p){ return p.status!=='hidden'; });
+  document.getElementById('results-count').textContent = visible.length + ' good things, sorted by the coop';
+  var html='', placed={};
+  SECTION_ORDER.forEach(function(slug){
+    var items=visible.filter(function(p){ return !placed[p.id] && (p.categories||[]).indexOf(slug)>=0; }).sort(sortInSection);
+    if(!items.length) return;
+    items.forEach(function(p){ placed[p.id]=1; });
+    var hen=SECTION_HEN[slug];
+    html+='<div class="shop-section"><div class="section-head">'+
+      (hen?'<img src="chickens/'+hen+'.png" alt="" loading="lazy">':'')+
+      '<h2>'+(EMOJI[slug]||'')+' '+(CAT_NAME[slug]||slug)+'</h2>'+
+      '<span class="sec-count">'+items.length+'</span></div>'+
+      cardGrid(items)+'</div>';
+  });
+  var rest=visible.filter(function(p){ return !placed[p.id]; }).sort(sortInSection);
+  if(rest.length){ html+='<div class="shop-section"><div class="section-head"><h2>✨ More good things</h2><span class="sec-count">'+rest.length+'</span></div>'+cardGrid(rest)+'</div>'; }
+  grid.innerHTML = html || '<div class="state-msg">Nothing here yet — check back soon.</div>';
 }
 
 function filter(cat) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('[data-cat="' + cat + '"]').forEach(b => b.classList.add('active'));
-  render(cat === 'all' ? products : products.filter(p => (p.categories||[]).includes(cat)));
+  if (cat === 'all') { renderAll(); return; }
+  render(products.filter(p => (p.categories||[]).includes(cat) && p.status!=='hidden'));
 }
 
 function openModal(id) {
@@ -873,9 +911,9 @@ function dealCards(){
     var buyable = (p.status==='live' && p.price!=null);
     var btn = buyable
       ? '<button class="dc-add" onclick="event.stopPropagation();addToCart(\''+p.id+'\')">Add to cart</button>'
-      : '<button class="dc-add" style="background:var(--slate)" onclick="event.stopPropagation();showShop();openModal(\''+p.id+'\')">'+(p.status==='preorder'?'Pre-order':'Take a look')+'</button>';
+      : '<button class="dc-add" style="background:var(--slate)" onclick="event.stopPropagation();openModal(\''+p.id+'\')">'+(p.status==='preorder'?'Pre-order':'Take a look')+'</button>';
     card.innerHTML='<div class="dc-img">'+(cover?'<img src="'+cover+'">':'📦')+'</div><div class="dc-body"><div class="dc-title">'+p.title+'</div><div class="dc-price">'+price+'</div>'+btn+'</div>';
-    card.onclick=function(){ showShop(); openModal(p.id); };
+    card.onclick=function(){ openModal(p.id); };
     stage.appendChild(card);
     var tx=startX+i*gap, ty=Math.max(8, H*0.16 + Math.abs(i-(n-1)/2)*15), rot=(i-(n-1)/2)*6;
     card.style.left=(W/2-cw/2)+'px'; card.style.top=(H-130)+'px'; card.style.transform='rotate(0deg) scale(.7)';
@@ -903,12 +941,13 @@ async function init() {
       const btn = document.createElement('button');
       btn.className = 'filter-btn';
       btn.dataset.cat = cat.slug;
+      CAT_NAME[cat.slug] = cat.name;
       btn.textContent = (EMOJI[cat.slug]||'') + ' ' + cat.name;
       btn.onclick = () => filter(cat.slug);
       fc.appendChild(btn);
     });
     document.querySelector('[data-cat="all"]').onclick = () => filter('all');
-    render(products);
+    renderAll();
 
     buildDealFilters();
     const slug = window.location.pathname.replace(/^\//, '');
