@@ -718,8 +718,8 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 let products = [], categories = [];
 
-const EMOJI = { marbleverse:'🔮', workbooks:'📋', faith:'✝️', financial:'💰', books:'📚', stickers:'🎨', programs:'🚀' };
-const TYPES = { digital:'📄 Digital Download', physical_ship:'📦 Ships from Kari', printful:'👕 Print on Demand', free:'🎁 Free', service:'🤝 Program / Service' };
+const EMOJI = { marbleverse:'🔮', workbooks:'📋', faith:'✝️', financial:'💰', books:'📚', stickers:'🎨', programs:'🚀', tools:'🛠️', apps:'📱' };
+const TYPES = { digital:'📄 Digital Download', physical_ship:'📦 Ships from Kari', printful:'👕 Print on Demand', free:'🎁 Free', service:'🤝 Program / Service', link:'↗ Visit the site' };
 
 async function db(path) {
   const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
@@ -729,12 +729,14 @@ async function db(path) {
 }
 
 function priceText(p) {
+  if (p.product_type === 'link') return '';
   if (p.product_type === 'free' || p.price === 0) return 'FREE';
   if (!p.price) return 'Notify Me';
   return '$' + Number(p.price).toFixed(2);
 }
 
 function priceBadge(p) {
+  if (p.product_type === 'link') return '<span class="card-price tbd">Open →</span>';
   if (p.product_type === 'free' || p.price === 0) return '<span class="card-price free">FREE</span>';
   if (!p.price) return '<span class="card-price tbd">Coming Soon</span>';
   return '<span class="card-price">$' + Number(p.price).toFixed(2) + '</span>';
@@ -754,7 +756,7 @@ function cardHtml(p, i) {
   const img = cover
     ? '<img src="' + cover + '" alt="' + p.title + '" loading="lazy">'
     : '<span>' + (EMOJI[(p.categories||[])[0]] || '📦') + '</span>';
-  const typeIcon = p.product_type === 'digital' ? '⬇ Digital' : p.product_type === 'free' ? '🎁 Free' : '📦 Ships';
+  const typeIcon = p.product_type === 'digital' ? '⬇ Digital' : p.product_type === 'free' ? '🎁 Free' : p.product_type === 'link' ? '↗ Visit' : '📦 Ships';
 
   return '<div class="product-card" onclick="openModal(\'' + p.id + '\')">' +
     '<div class="card-image">' + img + getBadge(p) + '</div>' +
@@ -814,6 +816,11 @@ function openModal(id) {
     btn.className = 'btn-buy free-btn';
     if (p.download_url) { btn.onclick = () => { window.location.href = p.download_url; }; }
     else { btn.onclick = () => alert('Free access coming soon!'); }
+  } else if (p.product_type === 'link') {
+    btn.textContent = 'Visit →';
+    btn.className = 'btn-buy';
+    var lurl = p.download_url || p.payment_link;
+    btn.onclick = () => { window.open(lurl, '_blank'); };
   } else {
     btn.textContent = 'Add to Cart — ' + priceText(p);
     btn.className = 'btn-buy';
@@ -852,7 +859,7 @@ function setDealFilter(slug, btn){ dealFilter=slug; Array.prototype.forEach.call
 function dealCards(){
   var stage=document.getElementById('deal-stage'); if(!stage) return;
   Array.prototype.forEach.call(stage.querySelectorAll('.deal-card'), function(n){ n.remove(); });
-  var pool=(typeof products!=='undefined'&&products?products:[]).filter(function(p){ return (p.status==='live'||p.status==='preorder') && (dealFilter==='all' || (p.categories||[]).indexOf(dealFilter)>=0); });
+  var pool=(typeof products!=='undefined'&&products?products:[]).filter(function(p){ return (p.status==='live'||p.status==='preorder') && p.product_type!=='link' && (dealFilter==='all' || (p.categories||[]).indexOf(dealFilter)>=0); });
   pool=pool.slice().sort(function(){ return Math.random()-0.5; });
   var mobile = stage.clientWidth < 640, cw = mobile?150:190;
   pool=pool.slice(0, Math.min(pool.length, mobile?4:6));
