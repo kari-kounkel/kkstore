@@ -108,87 +108,73 @@
 
   /* HERO */
   .store-hero {
-    background: linear-gradient(135deg, #E0381F 0%, #F07830 100%);
-    padding: 64px 48px 56px;
+    background: transparent;
+    padding: 40px 32px 22px;
     position: relative;
     overflow: hidden;
-  }
-
-  .store-hero::before {
-    content: '';
-    position: absolute;
-    top: -80px;
-    right: -80px;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(232,132,90,0.25) 0%, transparent 65%);
-    pointer-events: none;
-  }
-
-  .store-hero::after {
-    content: '';
-    position: absolute;
-    bottom: -60px;
-    left: 20%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(217,68,117,0.15) 0%, transparent 65%);
-    pointer-events: none;
+    text-align: center;
   }
 
   .hero-inner {
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
     position: relative;
     z-index: 1;
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 40px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .hero-eyebrow {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--pink);
+    transform: rotate(-2deg);
   }
 
   .hero-text h1 {
     font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(42px, 6vw, 76px);
-    font-weight: 900;
-    color: var(--white);
-    line-height: 1.05;
+    font-size: clamp(38px, 6vw, 64px);
+    font-weight: 700;
+    line-height: 1.02;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
-  .hero-text h1 em {
-    color: var(--orange);
-    font-style: italic;
-    display: block;
-  }
+  .hero-text h1 em { font-style: italic; }
 
   .hero-sub {
-    margin-top: 14px;
-    font-size: 16px;
-    color: rgba(255,255,255,0.7);
-    font-weight: 500;
-    max-width: 440px;
-    line-height: 1.6;
+    margin-top: 4px;
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    color: var(--muted);
+    font-weight: 700;
+    max-width: 520px;
+    line-height: 1.4;
   }
 
   .hero-pills {
     display: flex;
     gap: 10px;
-    margin-top: 22px;
+    margin-top: 16px;
     flex-wrap: wrap;
+    justify-content: center;
   }
 
   .hero-pill {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
+    background: #fff;
+    border: 1.5px solid var(--border);
     padding: 6px 14px;
     border-radius: 100px;
     font-family: 'DM Mono', monospace;
     font-size: 11px;
-    color: rgba(255,255,255,0.75);
+    color: var(--muted);
     letter-spacing: 0.04em;
-    backdrop-filter: blur(4px);
   }
-  .hero-pill strong { color: var(--white); }
+  .hero-pill strong { color: var(--pink); }
 
   /* FILTER */
   .filter-wrap {
@@ -541,9 +527,10 @@
 
   /* FOOTER */
   .store-footer {
-    background: var(--navy);
-    color: var(--white);
-    padding: 48px;
+    background: var(--off);
+    color: var(--text);
+    padding: 40px 48px;
+    border-top: 1.5px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -554,25 +541,30 @@
   .footer-logo {
     font-family: Georgia, 'Times New Roman', serif;
     font-size: 24px;
-    font-weight: 900;
+    font-weight: 700;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
-  .footer-logo em { color: var(--orange); font-style: italic; }
+  .footer-logo em { font-style: italic; }
   .footer-tagline {
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: rgba(255,255,255,0.45);
-    margin-top: 6px;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-top: 4px;
   }
 
   .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
   .footer-links a {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
-    color: rgba(255,255,255,0.45);
+    color: var(--muted);
     text-decoration: none;
     transition: color 0.2s;
   }
-  .footer-links a:hover { color: var(--orange); }
+  .footer-links a:hover { color: var(--pink); }
 
   @media (max-width: 768px) {
     .site-header { padding: 14px 20px; }
@@ -658,8 +650,9 @@
 <section class="store-hero">
   <div class="hero-inner">
     <div class="hero-text">
+      <div class="hero-eyebrow">welcome to the coop</div>
       <h1>The <em>Good</em> Stuff.</h1>
-      <p class="hero-sub">Books. Workbooks. Marbles. Stickers. Tools for the called and the courageous.</p>
+      <p class="hero-sub">everything we make — all in one happy place</p>
       <div class="hero-pills">
         <span class="hero-pill"><strong id="pill-live">—</strong> live now</span>
         <span class="hero-pill"><strong id="pill-soon">—</strong> coming soon</span>
