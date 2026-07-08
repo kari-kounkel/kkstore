@@ -628,7 +628,7 @@
   .deal-chip.active{background:var(--grad);color:#fff;border-color:transparent;}
   .chicken-tracks{position:absolute;inset:0;opacity:.22;pointer-events:none;z-index:0;}
   .ptrack{position:absolute;width:26px;height:22px;background-repeat:no-repeat;background-position:center;background-size:contain;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 -10 28 20'%3E%3Cpath d='M0 0L11 0M0 0L8 -7M0 0L8 7M0 0L-7 0' stroke='%23C26A1E' stroke-width='3' stroke-linecap='round' fill='none'/%3E%3C/svg%3E");}
-  @media(max-width:640px){ .deal-card{width:146px;height:214px;} .dc-img{height:116px;} .deal-hen{width:148px;} .deal-title{font-size:34px;} .deal-eyebrow{font-size:22px;} }
+  @media(max-width:640px){ .deal-card{width:146px;height:214px;} .dc-img{height:116px;} .deal-hen{width:140px;} .deal-title{font-size:34px;} .deal-eyebrow{font-size:22px;} .deal-filters{display:none;} }
 </style>
 </head>
 <body>
@@ -892,7 +892,7 @@ function dealCards(){
   Array.prototype.forEach.call(stage.querySelectorAll('.deal-card'), function(n){ n.remove(); });
   var pool=(typeof products!=='undefined'&&products?products:[]).filter(function(p){ return (p.status==='live'||p.status==='preorder') && p.product_type!=='link' && (dealFilter==='all' || (p.categories||[]).indexOf(dealFilter)>=0); });
   pool=pool.slice().sort(function(){ return Math.random()-0.5; });
-  var mobile = stage.clientWidth < 640, cw = mobile?146:190;
+  var mobile = stage.clientWidth < 640, cw = mobile?146:190, ch = mobile?214:270, henClear = mobile?100:24;
   pool=pool.slice(0, Math.min(pool.length, mobile?3:6));
   var W=stage.clientWidth, H=stage.clientHeight, n=pool.length;
   var gap=n>1 ? Math.min(cw+18, (W-cw-24)/(n-1)) : 0;
@@ -908,7 +908,7 @@ function dealCards(){
     card.innerHTML='<div class="dc-img">'+(cover?'<img src="'+cover+'">':'📦')+'</div><div class="dc-body"><div class="dc-title">'+p.title+'</div><div class="dc-price">'+price+'</div>'+btn+'</div>';
     card.onclick=function(){ openModal(p.id); };
     stage.appendChild(card);
-    var tx=startX+i*gap, ty=Math.max(8, H*0.16 + Math.abs(i-(n-1)/2)*15), rot=(i-(n-1)/2)*6;
+    var tx=startX+i*gap, ty=Math.max(8, Math.min(H*0.16 + Math.abs(i-(n-1)/2)*15, H - ch - henClear)), rot=(i-(n-1)/2)*6;
     card.style.left=(W/2-cw/2)+'px'; card.style.top=(H-130)+'px'; card.style.transform='rotate(0deg) scale(.7)';
     (function(c){ setTimeout(function(){ c.style.opacity='1'; c.style.left=tx+'px'; c.style.top=ty+'px'; c.style.transform='rotate('+rot+'deg)'; }, 140+i*130); })(card);
   });
