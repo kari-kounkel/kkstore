@@ -6,7 +6,7 @@
   ],
   "headers": [
     {
-      "source": "/pos/(.*)",
+      "source": "/pos:path*",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
         { "key": "Cache-Control", "value": "no-store" }
