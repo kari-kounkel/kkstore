@@ -28,7 +28,12 @@ Kari's store — karikounkel.shop — a static HTML store with a "chicken dealer
 - ✅ `pos/README.md` — full setup doc: Stripe settings, hardware verdict, reader registration, env vars, catalog sync, iPad launch, starting an event, reconciling, failure modes.
 - ✅ `vercel.json` — added `/pos` and `/pos/admin` rewrites plus `noindex` + `no-store` headers on `/pos/*`.
 - ✅ Verified in-browser at 1180×820 landscape and 820×1180 portrait: grid, cart, keypad, tax math ($159 → 6.875% → $169.93; with a $20 discount → $148.56), cash-change screen, admin event list + report. Client and server price math use the same formula, so the total never changes at payment time.
-- ⬜ Not yet done: run `schema.sql`, `supabase functions deploy pos`, set `POS_ACCESS_CODE`, git push, buy a reader.
+- ✅ **Schema applied to the live database** (2026-09-09) — `pos_events`, `pos_event_items`, `pos_sales`, `pos_sale_lines`, `pos_event_totals`, stock trigger. All present and confirmed.
+- ✅ **Security hole caught and fixed.** Supabase's linter flagged `pos_event_totals` as an ERROR — a view runs with its *creator's* rights by default, which would have let the public anon key read every sale total straight past the RLS on the tables. Fixed with `security_invoker = on`, and `pos_decrement_stock()` revoked from anon/authenticated. `schema.sql` updated to match, so re-running it can't reintroduce the hole.
+- ✅ **RLS verified for real, not assumed** — inserted a canary row, then queried as anon: tables `[]`, view `[]`, insert → 401 RLS violation, trigger fn over RPC → 404. Canary deleted.
+- ✅ **Pushed** — 2 commits on `main` at `github.com/kari-kounkel/kkstore`. Vercel deployed. `karikounkel.shop/pos` and `/pos/admin` both live and serving 200, with `X-Robots-Tag: noindex` + `Cache-Control: no-store`. (Kari chose to commit `budget-pro/` and `.vscode/` in the same push; both are now tracked.)
+- ⬜ **The one remaining blocker: the Edge Function is not deployed.** Supabase CLI is installed (2.109.1) but not logged in, and `supabase login` opens a browser Claude can't drive. Until it's deployed, `/pos` loads but the passcode screen won't unlock — harmless, it fails closed.
+- ⬜ Also outstanding: buy the reader (return the M2), pick a `POS_ACCESS_CODE`.
 
 **Court of Accounts product page (Jul 28–29)**
 - ✅ `coa/index.html`, `coa/thanks.html`, `coa/tools.html`, `coa/api/get-pdf.js` — CoA page with ordering, PDF delivery (`Court_of_Accounts_Bold_and_Playful_3.pdf` for now — "it's got one more edit")
@@ -90,7 +95,10 @@ POS chat (2026-09-09): everything is written, syntax- and type-checked, and visu
 Court of Accounts chat: 07-29, the audit reconciliation into THE-LIST.html was finished and verified while Kari slept. Kari's standing verdict on the CoA page itself was "I hate this page... it's boring", and "there's no single thing" (no single source of truth for the ecosystem) — she asked to find a July-19-era chat where she spent an hour explaining the site map. The PDF still has one more edit pending. Empire chat: see section above — ended 08-24 on the separation letter with the new-UI-vs-patch-Pro decision open.
 
 ## Next steps
-0. **Turn the POS on** — in order: run `pos/schema.sql` in the Supabase SQL editor → `supabase secrets set POS_ACCESS_CODE=…` → `supabase functions deploy pos` → `git push` → open `karikounkel.shop/pos`. Then order a **BBPOS WisePOS E** from [dashboard.stripe.com/terminal/shop](https://dashboard.stripe.com/terminal/shop), register it to a Terminal Location, and set `POS_READER_ID`. Full walkthrough in `pos/README.md`.
+0. **PICK UP HERE.** Schema, code, and deploy are all done. Three things left, in order:
+   a. In a terminal (the Terminal tab beside the Claude Code chat, sitting at `C:\dev\karikounkel`): `supabase login` — it opens a browser to authorize. Claude cannot do this step.
+   b. Then Claude can run: `supabase secrets set POS_ACCESS_CODE=<Kari picks this> --project-ref lheytkgixafdhluuvrbg` and `supabase functions deploy pos --project-ref lheytkgixafdhluuvrbg`. After that `/pos` unlocks and cash sales work immediately.
+   c. Return the M2 (Stripe Dashboard → Terminal → Orders → **Cancel** if still Pending, otherwise **Return items** — 30-day window, original packaging). Order a **BBPOS WisePOS E** from [dashboard.stripe.com/terminal/shop](https://dashboard.stripe.com/terminal/shop), register it to a Terminal Location, set `POS_READER_ID`, and the CARD button lights up. Full walkthrough in `pos/README.md`.
 1. Find the site-map chat (around 07-19) and rebuild the CoA page so it isn't boring — chicken-dealer card style, SEO keywords, on-brand palette (`coa-brand-palette.md`).
 2. Wire order alerts through the existing `kcocares.com` hub; get `kcocares.com` deployed/live.
 3. Unify GA4 — remove the legacy double-count id from cares-works and decide one property vs five.
