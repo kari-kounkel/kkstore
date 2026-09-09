@@ -1,0 +1,6 @@
+{
+  "gitdoc.enabled": true,
+  "gitdoc.autoPush": "onCommit",
+  "gitdoc.pullOnOpen": true,
+  "gitdoc.commitOnClose": true
+}

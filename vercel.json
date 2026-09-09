@@ -1,5 +1,16 @@
 {
   "rewrites": [
+    { "source": "/pos", "destination": "/pos/index.html" },
+    { "source": "/pos/admin", "destination": "/pos/admin.html" },
     { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/pos/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
   ]
 }

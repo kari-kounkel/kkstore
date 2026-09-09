@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="K Co Register">
+<meta name="robots" content="noindex, nofollow">
+<title>K Co Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Mono:wght@400;500&family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#E0381F; --orange:#F07830; --navy:#3a2a22; --text:#2e231d;
+    --muted:#a3917f; --border:#f0e2d6; --off:#FDF7F2; --white:#fff;
+    --green:#1f7a4d; --green-light:#e7f5ee;
+    --shadow:0 2px 10px rgba(58,42,34,.08);
+    --shadow-lg:0 18px 44px rgba(224,56,32,.18);
+    --tap:88px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;overflow:hidden}
+  body{
+    font-family:'Nunito Sans',system-ui,sans-serif;color:var(--text);
+    background:var(--off);
+    -webkit-user-select:none;user-select:none;
+    -webkit-text-size-adjust:100%;
+  }
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  input{font-family:inherit;-webkit-user-select:text;user-select:text}
+  .mono{font-family:'DM Mono',monospace}
+
+  /* ---------------- shell ---------------- */
+  #app{display:flex;flex-direction:column;height:100%}
+
+  .bar{
+    display:flex;align-items:center;gap:14px;
+    padding:10px max(16px,env(safe-area-inset-left)) 10px max(16px,env(safe-area-inset-right));
+    background:var(--white);border-bottom:1.5px solid var(--border);flex:0 0 auto;
+  }
+  .brand{font-family:Georgia,serif;font-size:20px;font-weight:900;color:var(--pink);letter-spacing:-.01em}
+  .brand em{color:var(--orange);font-style:italic}
+  .ev{
+    font-family:'DM Mono',monospace;font-size:12px;color:var(--navy);
+    background:var(--off);border:1.5px solid var(--border);border-radius:100px;
+    padding:6px 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw;
+  }
+  .bar-spacer{flex:1}
+  .chip{
+    font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.04em;
+    padding:6px 12px;border-radius:100px;border:1.5px solid var(--border);color:var(--muted);
+    display:flex;align-items:center;gap:6px;white-space:nowrap;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:0 0 auto}
+  .dot.ok{background:var(--green)} .dot.warn{background:var(--orange)}
+
+  .main{flex:1;display:flex;min-height:0}
+
+  /* ---------------- product grid ---------------- */
+  .grid-wrap{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px;min-width:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}
+  .tile{
+    min-height:132px;border-radius:20px;background:var(--white);
+    border:2px solid var(--border);box-shadow:var(--shadow);
+    padding:16px;display:flex;flex-direction:column;justify-content:space-between;
+    text-align:left;transition:transform .09s ease,box-shadow .09s ease,border-color .09s ease;
+    position:relative;overflow:hidden;
+  }
+  .tile:active{transform:scale(.96);border-color:var(--orange);box-shadow:var(--shadow-lg)}
+  .tile.pop{animation:pop .28s ease}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(.94)}100%{transform:scale(1)}}
+  .tile-name{
+    font-size:19px;font-weight:800;line-height:1.2;letter-spacing:-.01em;
+    text-transform:uppercase;word-break:break-word;
+  }
+  .tile-price{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--pink);margin-top:10px}
+  /* Stock sits above the name in normal flow — nothing to collide with. */
+  .tile-stock{
+    font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);
+    letter-spacing:.04em;margin-bottom:6px;
+  }
+  .tile.out{opacity:.42}
+  .tile.out .tile-stock{color:var(--pink);font-weight:500}
+  .tile.special{background:linear-gradient(140deg,#fff6ef,#ffeadf);border-color:#f6d3bc}
+  .tile.special .tile-name{color:var(--navy)}
+  .tile.special .tile-sub{font-family:'Caveat',cursive;font-size:20px;color:var(--orange);margin-top:6px}
+
+  /* ---------------- cart rail ---------------- */
+  .rail{
+    width:400px;flex:0 0 400px;background:var(--white);
+    border-left:1.5px solid var(--border);display:flex;flex-direction:column;min-height:0;
+  }
+  .rail-head{
+    padding:14px 18px;border-bottom:1.5px solid var(--border);
+    display:flex;align-items:baseline;justify-content:space-between;
+  }
+  .rail-title{font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.06em}
+  .rail-clear{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);padding:8px 10px;margin:-8px -10px}
+
+  .lines{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 12px}
+  .empty{
+    height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:8px;color:var(--muted);text-align:center;padding:24px;
+  }
+  .empty-hand{font-family:'Caveat',cursive;font-size:26px;color:var(--muted)}
+
+  .line{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--border)}
+  .line:last-child{border-bottom:none}
+  .line-main{flex:1;min-width:0}
+  .line-name{font-size:15px;font-weight:700;line-height:1.25;word-break:break-word}
+  .line-each{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);margin-top:2px}
+  .qty{display:flex;align-items:center;gap:2px;flex:0 0 auto}
+  .qbtn{
+    width:44px;height:44px;border-radius:12px;background:var(--off);
+    font-size:24px;font-weight:700;line-height:1;color:var(--navy);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .qbtn:active{background:var(--border)}
+  .qnum{
+    font-family:'DM Mono',monospace;font-size:18px;min-width:34px;text-align:center;font-weight:500;
+  }
+  .line-total{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;min-width:76px;text-align:right}
+
+  .totals{padding:12px 18px;border-top:1.5px solid var(--border);background:var(--off)}
+  .trow{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;font-size:14px;color:var(--muted)}
+  .trow span:last-child{font-family:'DM Mono',monospace;color:var(--text)}
+  .trow.disc span:last-child{color:var(--green)}
+  .trow.grand{
+    padding-top:10px;margin-top:6px;border-top:2px dashed var(--border);
+    font-size:19px;font-weight:900;color:var(--text);text-transform:uppercase;letter-spacing:.04em;
+  }
+  .trow.grand span:last-child{font-size:32px;font-weight:500;color:var(--pink)}
+
+  .pay{
+    padding:12px 14px max(14px,env(safe-area-inset-bottom));
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  }
+  .pay .wide{grid-column:1 / -1}
+  .btn{
+    min-height:var(--tap);border-radius:18px;font-size:19px;font-weight:900;
+    text-transform:uppercase;letter-spacing:.05em;display:flex;align-items:center;
+    justify-content:center;gap:9px;transition:transform .09s ease,opacity .15s;
+  }
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.35;pointer-events:none}
+  .btn-card{background:var(--pink);color:#fff;box-shadow:0 6px 18px rgba(224,56,32,.3)}
+  .btn-cash{background:var(--navy);color:#fff}
+  .btn-ghost{
+    background:var(--white);border:2px solid var(--border);color:var(--navy);
+    min-height:60px;font-size:14px;letter-spacing:.04em;
+  }
+  .btn-ghost:active{background:var(--off)}
+  .extras{padding:0 14px 10px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+  /* ---------------- overlays ---------------- */
+  .veil{
+    position:fixed;inset:0;background:rgba(46,35,29,.55);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:60;
+  }
+  .sheet{
+    background:var(--white);border-radius:26px;width:100%;max-width:430px;
+    padding:24px;box-shadow:var(--shadow-lg);
+  }
+  .sheet h2{font-size:20px;font-weight:900;text-transform:uppercase;letter-spacing:.04em;text-align:center}
+  .sheet .hint{text-align:center;color:var(--muted);font-size:14px;margin-top:6px}
+
+  .readout{
+    font-family:'DM Mono',monospace;font-size:46px;font-weight:500;text-align:center;
+    padding:18px 12px;margin:16px 0;background:var(--off);border-radius:16px;
+    border:2px solid var(--border);color:var(--text);min-height:88px;
+    display:flex;align-items:center;justify-content:center;word-break:break-all;
+  }
+  .keys{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .key{
+    height:70px;border-radius:16px;background:var(--off);border:2px solid var(--border);
+    font-family:'DM Mono',monospace;font-size:28px;font-weight:500;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .key:active{background:var(--border)}
+  .key.wide{grid-column:span 2}
+  .sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+
+  .field{
+    width:100%;padding:16px;font-size:19px;border:2px solid var(--border);
+    border-radius:14px;background:var(--off);margin-top:14px;text-align:center;
+  }
+  .field:focus{outline:none;border-color:var(--orange);background:#fff}
+
+  /* ---------------- processing / result ---------------- */
+  .full{
+    position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:32px;
+  }
+  .full.working{background:var(--navy);color:#fff}
+  .full.win{background:var(--green);color:#fff}
+  .full.lose{background:var(--pink);color:#fff}
+
+  .full-mark{font-size:104px;line-height:1;margin-bottom:8px}
+  .full-amt{font-family:'DM Mono',monospace;font-size:76px;font-weight:500;letter-spacing:-.02em;line-height:1}
+  .full-title{font-size:40px;font-weight:900;text-transform:uppercase;letter-spacing:.06em;margin-top:10px}
+  .full-note{font-size:18px;opacity:.9;margin-top:12px;max-width:520px;line-height:1.45}
+  .full-hand{font-family:'Caveat',cursive;font-size:30px;opacity:.92;margin-top:14px}
+  .full-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:34px}
+  .full-btn{
+    min-height:72px;padding:0 34px;border-radius:18px;font-size:19px;font-weight:900;
+    text-transform:uppercase;letter-spacing:.05em;background:#fff;color:var(--navy);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .full-btn:active{transform:scale(.97)}
+  .full-btn.outline{background:transparent;border:2.5px solid rgba(255,255,255,.6);color:#fff}
+
+  .spinner{
+    width:76px;height:76px;border-radius:50%;border:7px solid rgba(255,255,255,.2);
+    border-top-color:#fff;animation:spin 1s linear infinite;margin-bottom:26px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------------- gate / notice ---------------- */
+  .gate{
+    position:fixed;inset:0;z-index:90;background:var(--off);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;
+  }
+  .gate .brand{font-size:40px;margin-bottom:4px}
+  .gate .hand{font-family:'Caveat',cursive;font-size:24px;color:var(--muted);margin-bottom:22px}
+  .gate-box{width:100%;max-width:380px}
+  .err{
+    color:var(--pink);font-size:14px;text-align:center;margin-top:12px;
+    font-weight:700;min-height:20px;
+  }
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%);
+    background:var(--navy);color:#fff;padding:14px 26px;border-radius:100px;
+    font-size:15px;font-weight:700;z-index:95;box-shadow:var(--shadow-lg);
+    max-width:88vw;text-align:center;
+  }
+  .hidden{display:none !important}
+
+  /* ---------------- portrait / small ---------------- */
+  @media (max-width:900px){
+    .main{flex-direction:column}
+    .rail{width:100%;flex:0 0 auto;max-height:56%;border-left:none;border-top:1.5px solid var(--border)}
+    .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+    .tile{min-height:112px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ passcode gate ============ -->
+<div class="gate" id="gate">
+  <div class="brand">K<em>Co</em> Register</div>
+  <div class="hand">let's sell some books</div>
+  <div class="gate-box">
+    <input class="field mono" id="code" type="password" inputmode="numeric"
+           autocomplete="off" placeholder="passcode" aria-label="Passcode">
+    <div class="err" id="gateErr"></div>
+    <button class="btn btn-card" id="unlock" style="width:100%;margin-top:6px">Open the register</button>
+  </div>
+</div>
+
+<!-- ============ register ============ -->
+<div id="app" class="hidden">
+  <div class="bar">
+    <div class="brand">K<em>Co</em></div>
+    <div class="ev" id="evName">—</div>
+    <div class="bar-spacer"></div>
+    <div class="chip" id="readerChip"><span class="dot" id="readerDot"></span><span id="readerTxt">reader</span></div>
+    <div class="chip" id="netChip"><span class="dot ok" id="netDot"></span><span id="netTxt">online</span></div>
+  </div>
+
+  <div class="main">
+    <div class="grid-wrap">
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="rail">
+      <div class="rail-head">
+        <div class="rail-title">Cart</div>
+        <button class="rail-clear" id="clearBtn">clear</button>
+      </div>
+      <div class="lines" id="lines"></div>
+      <div class="totals" id="totals"></div>
+      <div class="extras">
+        <button class="btn btn-ghost" id="discBtn">% Discount</button>
+        <button class="btn btn-ghost" id="emailBtn">✉ Email</button>
+      </div>
+      <div class="pay">
+        <button class="btn btn-card" id="cardBtn">Card</button>
+        <button class="btn btn-cash" id="cashBtn">Cash</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------------------------------------------------
+   config — no secrets here, only the public anon key,
+   which is exactly what it is meant for.
+--------------------------------------------------------- */
+var SUPABASE_URL = 'https://lheytkgixafdhluuvrbg.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxoZXl0a2dpeGFmZGhsdXV2cmJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NDUxOTksImV4cCI6MjA5MTAyMTE5OX0.ACGgv_cHHLJTP_-Bqj1pwosc6heo8l_4VWoWlHNiV7s';
+var API = SUPABASE_URL + '/functions/v1/pos';
+
+var $ = function(id){ return document.getElementById(id); };
+var code = '', evt = null, items = [], cart = [], discount = 0, email = '';
+var clientRef = null, busy = false, pollTimer = null, activeSale = null;
+
+var fmt = function(n){
+  return '$' + (Math.round((Number(n)||0)*100)/100).toFixed(2);
+};
+
+function newRef(){
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'r-' + Date.now() + '-' + Math.random().toString(36).slice(2,10);
+}
+
+function api(action, payload){
+  return fetch(API, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'apikey':SUPABASE_ANON,
+      'Authorization':'Bearer ' + SUPABASE_ANON,
+      'x-pos-code':code
+    },
+    body: JSON.stringify(Object.assign({action:action}, payload||{}))
+  }).then(function(r){
+    return r.json().then(function(j){
+      if (!r.ok) throw new Error(j.error || ('Error ' + r.status));
+      return j;
+    });
+  });
+}
+
+/* ---------------------------------------------------------
+   the gate
+--------------------------------------------------------- */
+function unlock(){
+  var v = $('code').value.trim();
+  if (!v) return;
+  code = v;
+  $('gateErr').textContent = 'checking…';
+  api('bootstrap', {}).then(function(d){
+    try { localStorage.setItem('kco_pos_code', code); } catch(e){}
+    $('gate').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    load(d);
+  }).catch(function(e){
+    code = '';
+    $('gateErr').textContent = e.message;
+  });
+}
+$('unlock').addEventListener('click', unlock);
+$('code').addEventListener('keydown', function(e){ if (e.key === 'Enter') unlock(); });
+
+try {
+  var saved = localStorage.getItem('kco_pos_code');
+  if (saved) { $('code').value = saved; unlock(); }
+} catch(e){}
+
+/* ---------------------------------------------------------
+   loading the event
+--------------------------------------------------------- */
+function load(d){
+  evt = d.event; items = d.items || [];
+  var dot = $('readerDot'), txt = $('readerTxt');
+  if (d.reader_configured) { dot.className = 'dot ok'; txt.textContent = 'reader ready'; }
+  else { dot.className = 'dot warn'; txt.textContent = 'no reader'; }
+
+  if (!evt){
+    $('evName').textContent = 'No event open';
+    $('grid').innerHTML =
+      '<div class="empty" style="grid-column:1/-1;min-height:50vh">' +
+      '<div style="font-size:52px">🐔</div>' +
+      '<div style="font-size:20px;font-weight:800">No event is open yet</div>' +
+      '<div class="empty-hand">pop over to /pos/admin and start one</div></div>';
+    return;
+  }
+  $('evName').textContent = evt.name + (Number(evt.tax_rate) > 0
+    ? '  ·  tax ' + (Number(evt.tax_rate)*100).toFixed(2).replace(/\.?0+$/,'') + '%'
+    : '  ·  no tax');
+  drawGrid();
+  drawCart();
+}
+
+function soldOut(it){
+  if (it.stock_qty === null || it.stock_qty === undefined) return false;
+  var inCart = 0;
+  cart.forEach(function(l){ if (l.item_id === it.id) inCart = l.qty; });
+  return it.stock_qty - inCart <= 0;
+}
+
+function drawGrid(){
+  var g = $('grid');
+  g.innerHTML = '';
+
+  items.forEach(function(it){
+    var out = soldOut(it);
+    var b = document.createElement('button');
+    var tracked = it.stock_qty !== null && it.stock_qty !== undefined;
+    b.className = 'tile' + (out ? ' out' : '');
+    b.setAttribute('aria-label', it.label + ', ' + fmt(it.price));
+    var stock = '';
+    if (tracked){
+      var left = it.stock_qty;
+      cart.forEach(function(l){ if (l.item_id === it.id) left -= l.qty; });
+      stock = '<div class="tile-stock">' + (left <= 0 ? 'sold out' : left + ' left') + '</div>';
+    }
+    b.innerHTML =
+      '<div>' + stock + '<div class="tile-name">' + esc(it.label) + '</div></div>' +
+      '<div class="tile-price">' + fmt(it.price) + '</div>';
+    b.addEventListener('click', function(){
+      if (out) { toast(it.label + ' is sold out'); return; }
+      add(it); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+    });
+    g.appendChild(b);
+  });
+
+  var custom = document.createElement('button');
+  custom.className = 'tile special';
+  custom.innerHTML =
+    '<div><div class="tile-name">Other</div>' +
+    '<div class="tile-sub">custom amount</div></div>' +
+    '<div class="tile-price">$ · · ·</div>';
+  custom.addEventListener('click', askCustom);
+  g.appendChild(custom);
+}
+
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+/* ---------------------------------------------------------
+   cart
+--------------------------------------------------------- */
+function add(it){
+  if (!clientRef) clientRef = newRef();
+  for (var i=0;i<cart.length;i++){
+    if (cart[i].item_id === it.id){ cart[i].qty++; return drawAll(); }
+  }
+  cart.push({ item_id:it.id, label:it.label, unit_price:Number(it.price), qty:1, taxable:it.taxable });
+  drawAll();
+}
+
+function bump(i, by){
+  cart[i].qty += by;
+  if (cart[i].qty <= 0) cart.splice(i,1);
+  if (!cart.length) resetCart();
+  drawAll();
+}
+
+function resetCart(){
+  cart = []; discount = 0; email = ''; clientRef = null; activeSale = null;
+}
+
+function totals(){
+  var sub = 0, taxable = 0;
+  cart.forEach(function(l){
+    var t = l.unit_price * l.qty;
+    sub += t;
+    if (l.taxable !== false) taxable += t;
+  });
+  sub = Math.round(sub*100)/100;
+  var disc = Math.min(discount, sub);
+  var taxableAfter = sub > 0 ? taxable * (1 - disc/sub) : 0;
+  var tax = Math.round(taxableAfter * Number(evt ? evt.tax_rate : 0) * 100)/100;
+  return { sub:sub, disc:disc, tax:tax, total: Math.round((sub - disc + tax)*100)/100 };
+}
+
+function drawAll(){ drawGrid(); drawCart(); }
+
+function drawCart(){
+  var box = $('lines');
+  box.innerHTML = '';
+
+  if (!cart.length){
+    box.innerHTML = '<div class="empty"><div style="font-size:44px">🧺</div>' +
+      '<div class="empty-hand">tap something to start</div></div>';
+  } else {
+    cart.forEach(function(l, i){
+      var row = document.createElement('div');
+      row.className = 'line';
+      row.innerHTML =
+        '<div class="line-main"><div class="line-name">' + esc(l.label) + '</div>' +
+        '<div class="line-each">' + fmt(l.unit_price) + ' each</div></div>' +
+        '<div class="qty"><button class="qbtn" aria-label="One fewer">−</button>' +
+        '<span class="qnum">' + l.qty + '</span>' +
+        '<button class="qbtn" aria-label="One more">+</button></div>' +
+        '<div class="line-total">' + fmt(l.unit_price * l.qty) + '</div>';
+      var btns = row.querySelectorAll('.qbtn');
+      btns[0].addEventListener('click', function(){ bump(i,-1); });
+      btns[1].addEventListener('click', function(){ bump(i, 1); });
+      box.appendChild(row);
+    });
+  }
+
+  var t = totals();
+  var html = '<div class="trow"><span>Subtotal</span><span>' + fmt(t.sub) + '</span></div>';
+  if (t.disc > 0) html += '<div class="trow disc"><span>Discount</span><span>−' + fmt(t.disc) + '</span></div>';
+  if (t.tax > 0)  html += '<div class="trow"><span>Tax</span><span>' + fmt(t.tax) + '</span></div>';
+  if (email)      html += '<div class="trow"><span>Receipt</span><span style="font-size:13px">' + esc(email) + '</span></div>';
+  html += '<div class="trow grand"><span>Total</span><span>' + fmt(t.total) + '</span></div>';
+  $('totals').innerHTML = html;
+
+  var none = cart.length === 0 || busy;
+  $('cardBtn').disabled = none;
+  $('cashBtn').disabled = none;
+  $('discBtn').disabled = cart.length === 0;
+  $('emailBtn').disabled = cart.length === 0;
+}
+
+$('clearBtn').addEventListener('click', function(){
+  if (!cart.length) return;
+  resetCart(); drawAll();
+});
+
+/* ---------------------------------------------------------
+   the number pad — one pad, four jobs
+--------------------------------------------------------- */
+function keypad(opts){
+  var buf = '';
+  var veil = document.createElement('div');
+  veil.className = 'veil';
+  veil.innerHTML =
+    '<div class="sheet"><h2>' + esc(opts.title) + '</h2>' +
+    (opts.hint ? '<div class="hint">' + esc(opts.hint) + '</div>' : '') +
+    '<div class="readout" id="_ro">$0.00</div><div class="keys" id="_keys"></div>' +
+    '<div class="sheet-actions">' +
+    '<button class="btn btn-ghost" id="_no">Cancel</button>' +
+    '<button class="btn btn-card" id="_yes">' + esc(opts.ok || 'OK') + '</button>' +
+    '</div></div>';
+  document.body.appendChild(veil);
+
+  var ro = veil.querySelector('#_ro');
+  function val(){ return (parseInt(buf || '0', 10)) / 100; }
+  function paint(){ ro.textContent = fmt(val()); }
+
+  var keys = veil.querySelector('#_keys');
+  ['1','2','3','4','5','6','7','8','9'].forEach(mk);
+  mk('0'); mk('00'); mk('⌫');
+  function mk(label){
+    var k = document.createElement('button');
+    k.className = 'key'; k.textContent = label;
+    k.addEventListener('click', function(){
+      if (label === '⌫') buf = buf.slice(0,-1);
+      else if (buf.length < 8) buf += label;
+      paint();
+    });
+    keys.appendChild(k);
+  }
+  paint();
+
+  function close(){ document.body.removeChild(veil); }
+  veil.querySelector('#_no').addEventListener('click', close);
+  veil.querySelector('#_yes').addEventListener('click', function(){
+    var v = val();
+    if (opts.require && !(v > 0)) return;
+    close(); opts.done(v);
+  });
+  veil.addEventListener('click', function(e){ if (e.target === veil) close(); });
+}
+
+function askCustom(){
+  keypad({
+    title:'Custom amount', hint:'anything not on a button', ok:'Add to cart', require:true,
+    done:function(v){
+      if (!clientRef) clientRef = newRef();
+      cart.push({ item_id:null, label:'Other', unit_price:v, qty:1, taxable:true });
+      drawAll();
+    }
+  });
+}
+
+$('discBtn').addEventListener('click', function(){
+  keypad({
+    title:'Discount', hint:'taken off the whole sale', ok:'Apply',
+    done:function(v){ discount = v; drawCart(); }
+  });
+});
+
+$('emailBtn').addEventListener('click', function(){
+  var veil = document.createElement('div');
+  veil.className = 'veil';
+  veil.innerHTML =
+    '<div class="sheet"><h2>Email receipt</h2>' +
+    '<div class="hint">optional — Stripe sends it after a card sale</div>' +
+    '<input class="field" id="_em" type="email" inputmode="email" autocapitalize="off" ' +
+    'autocorrect="off" placeholder="name@example.com" value="' + esc(email) + '">' +
+    '<div class="sheet-actions">' +
+    '<button class="btn btn-ghost" id="_no">Skip</button>' +
+    '<button class="btn btn-card" id="_yes">Save</button></div></div>';
+  document.body.appendChild(veil);
+  var input = veil.querySelector('#_em');
+  setTimeout(function(){ input.focus(); }, 60);
+  function close(){ document.body.removeChild(veil); }
+  veil.querySelector('#_no').addEventListener('click', function(){ email=''; close(); drawCart(); });
+  veil.querySelector('#_yes').addEventListener('click', function(){
+    email = input.value.trim(); close(); drawCart();
+  });
+});
+
+/* ---------------------------------------------------------
+   paying
+--------------------------------------------------------- */
+function payload(){
+  return {
+    event_id: evt.id,
+    client_ref: clientRef,
+    discount: discount,
+    customer_email: email || null,
+    cart: cart.map(function(l){
+      return { item_id:l.item_id, label:l.label, unit_price:l.unit_price, qty:l.qty, taxable:l.taxable };
+    })
+  };
+}
+
+$('cashBtn').addEventListener('click', function(){
+  if (busy || !cart.length) return;
+  var t = totals();
+  keypad({
+    title:'Cash received', hint:'total is ' + fmt(t.total) + ' — leave at zero for exact', ok:'Take payment',
+    done:function(v){
+      lock();
+      var p = payload();
+      if (v > 0) p.cash_received = v;
+      api('sale.cash', p).then(function(d){
+        var change = d.sale && d.sale.change_due;
+        win(d.sale, change > 0 ? 'Change due ' + fmt(change) : null);
+      }).catch(fail);
+    }
+  });
+});
+
+$('cardBtn').addEventListener('click', function(){
+  if (busy || !cart.length) return;
+  lock();
+  working('Ask them to tap or insert');
+  api('sale.card', payload()).then(function(d){
+    if (d.already || (d.sale && d.sale.status === 'paid')) return win(d.sale);
+    activeSale = d.sale_id;
+    poll(d.sale_id, 0);
+  }).catch(function(e){
+    // No reader, or the reader refused. Offer the phone instead of dead-ending.
+    fail(e, true);
+  });
+});
+
+function poll(saleId, tries){
+  if (tries > 150) { // ~5 minutes
+    return fail(new Error('The reader never answered. Check it, then try again — this cart will not double charge.'), false);
+  }
+  pollTimer = setTimeout(function(){
+    api('sale.status', { sale_id: saleId }).then(function(d){
+      var s = d.sale;
+      if (s.status === 'paid')     return win(s);
+      if (s.status === 'failed')   return fail(new Error(s.failure_reason || 'The card was declined.'), false);
+      if (s.status === 'canceled') return fail(new Error('Canceled.'), false);
+      poll(saleId, tries + 1);
+    }).catch(function(){ poll(saleId, tries + 1); });
+  }, 2000);
+}
+
+function lock(){ busy = true; drawCart(); }
+function unlockUi(){ busy = false; if (pollTimer) clearTimeout(pollTimer); pollTimer = null; drawCart(); }
+
+/*
+  An attempt that did not succeed is finished for good — its PaymentIntent is
+  spent. The cart survives, but the next try is a genuinely new attempt with a
+  new reference, so it gets a clean PaymentIntent instead of a dead one.
+  Double charges are still impossible: a *paid* cart is cleared, not retried.
+*/
+function retryable(){
+  activeSale = null;
+  if (cart.length) clientRef = newRef();
+}
+
+/* ---------------------------------------------------------
+   the three big screens
+--------------------------------------------------------- */
+function screen(cls, inner){
+  var old = document.querySelector('.full');
+  if (old) old.parentNode.removeChild(old);
+  var d = document.createElement('div');
+  d.className = 'full ' + cls;
+  d.innerHTML = inner;
+  document.body.appendChild(d);
+  return d;
+}
+
+function working(msg){
+  var t = totals();
+  var d = screen('working',
+    '<div class="spinner"></div>' +
+    '<div class="full-amt">' + fmt(t.total) + '</div>' +
+    '<div class="full-note">' + esc(msg) + '</div>' +
+    '<div class="full-actions"><button class="full-btn outline" id="_stop">Cancel</button></div>');
+  d.querySelector('#_stop').addEventListener('click', function(){
+    if (pollTimer) clearTimeout(pollTimer);
+    var id = activeSale;
+    d.parentNode.removeChild(d);
+    unlockUi();
+
+    if (!id){ retryable(); return toast('Canceled. Nothing was charged.'); }
+
+    // The card may have cleared in the moment between the tap and this click.
+    // sale.cancel refuses in that case rather than losing the sale.
+    api('sale.cancel', { sale_id: id }).then(function(){
+      retryable();
+      toast('Canceled. Nothing was charged.');
+    }).catch(function(e){
+      if (/already went through/i.test(e.message)){
+        api('sale.status', { sale_id: id }).then(function(r){ win(r.sale); }).catch(function(){});
+      } else {
+        retryable();
+        toast(e.message);
+      }
+    });
+  });
+}
+
+function win(sale, extra){
+  var amt = sale ? sale.total : totals().total;
+  var tender = sale && sale.tender === 'cash' ? 'Cash' : (sale && sale.tender === 'link' ? 'Phone' : 'Card');
+  var saleId = sale ? sale.id : null;
+  var d = screen('win',
+    '<div class="full-mark">✓</div>' +
+    '<div class="full-amt">' + fmt(amt) + '</div>' +
+    '<div class="full-title">Paid · ' + tender + '</div>' +
+    (extra ? '<div class="full-note" style="font-size:30px;font-weight:800">' + esc(extra) + '</div>' : '') +
+    '<div class="full-hand">thank you!</div>' +
+    '<div class="full-actions">' +
+    '<button class="full-btn" id="_next">Next customer</button>' +
+    '<button class="full-btn outline" id="_rcpt">Email receipt</button>' +
+    '</div>');
+
+  // Cart is gone the moment it is paid. Nothing left to charge twice.
+  resetCart();
+  unlockUi();
+  drawAll();
+  if (evt) api('bootstrap', {}).then(function(x){ items = x.items || []; drawGrid(); }).catch(function(){});
+
+  d.querySelector('#_next').addEventListener('click', function(){ d.parentNode.removeChild(d); });
+  d.querySelector('#_rcpt').addEventListener('click', function(){ askReceipt(saleId); });
+}
+
+function askReceipt(saleId){
+  if (!saleId) return toast('No sale to send.');
+  var veil = document.createElement('div');
+  veil.className = 'veil';
+  veil.style.zIndex = 85;
+  veil.innerHTML =
+    '<div class="sheet"><h2>Email receipt</h2>' +
+    '<input class="field" id="_em" type="email" inputmode="email" autocapitalize="off" ' +
+    'autocorrect="off" placeholder="name@example.com">' +
+    '<div class="sheet-actions"><button class="btn btn-ghost" id="_no">Never mind</button>' +
+    '<button class="btn btn-card" id="_yes">Send</button></div></div>';
+  document.body.appendChild(veil);
+  var input = veil.querySelector('#_em');
+  setTimeout(function(){ input.focus(); }, 60);
+  function close(){ document.body.removeChild(veil); }
+  veil.querySelector('#_no').addEventListener('click', close);
+  veil.querySelector('#_yes').addEventListener('click', function(){
+    var v = input.value.trim();
+    if (!v) return close();
+    api('sale.receipt', { sale_id: saleId, email: v }).then(function(d){
+      close();
+      toast(d.emailed ? 'Receipt sent to ' + v : 'Saved — cash sales have no Stripe receipt');
+    }).catch(function(e){ close(); toast(e.message); });
+  });
+}
+
+function fail(err, offerPhone){
+  var d = screen('lose',
+    '<div class="full-mark">✕</div>' +
+    '<div class="full-title">Not paid</div>' +
+    '<div class="full-note">' + esc(err.message || 'Something went wrong.') + '</div>' +
+    '<div class="full-note" style="font-size:15px;opacity:.75">The cart is still here. Nothing was charged.</div>' +
+    '<div class="full-actions">' +
+    '<button class="full-btn" id="_back">Back to cart</button>' +
+    (offerPhone !== false ? '<button class="full-btn outline" id="_phone">Pay on their phone</button>' : '') +
+    '</div>');
+  unlockUi();
+  retryable();
+  d.querySelector('#_back').addEventListener('click', function(){ d.parentNode.removeChild(d); });
+  var ph = d.querySelector('#_phone');
+  if (ph) ph.addEventListener('click', function(){ d.parentNode.removeChild(d); payByPhone(); });
+}
+
+/* ---------------------------------------------------------
+   fallback — QR on the iPad, customer pays on their own phone
+--------------------------------------------------------- */
+function payByPhone(){
+  if (!cart.length) return;
+  lock();
+  api('sale.link', payload()).then(function(d){
+    var qr = 'https://api.qrserver.com/v1/create-qr-code/?size=340x340&margin=8&data=' + encodeURIComponent(d.url);
+    var v = document.createElement('div');
+    v.className = 'veil'; v.style.zIndex = 88;
+    v.innerHTML =
+      '<div class="sheet" style="max-width:400px;text-align:center">' +
+      '<h2>' + fmt(d.total) + '</h2>' +
+      '<div class="hint">have them scan this with their phone camera</div>' +
+      '<img src="' + qr + '" alt="Payment QR code" ' +
+      'style="width:100%;max-width:300px;margin:16px auto;display:block;border-radius:16px;border:2px solid var(--border)">' +
+      '<div class="sheet-actions">' +
+      '<button class="btn btn-ghost" id="_no">Give up</button>' +
+      '<button class="btn btn-card" id="_yes">They paid</button></div></div>';
+    document.body.appendChild(v);
+    function close(){ document.body.removeChild(v); }
+    v.querySelector('#_no').addEventListener('click', function(){ close(); unlockUi(); });
+    v.querySelector('#_yes').addEventListener('click', function(){
+      api('sale.link.confirm', { sale_id: d.sale_id }).then(function(r){
+        close(); win(r.sale);
+      }).catch(function(e){ close(); fail(e, false); });
+    });
+  }).catch(function(e){ fail(e, false); });
+}
+
+/* ---------------------------------------------------------
+   small things
+--------------------------------------------------------- */
+var toastTimer = null;
+function toast(msg){
+  var old = document.querySelector('.toast');
+  if (old) old.parentNode.removeChild(old);
+  var t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 3200);
+}
+
+function net(on){
+  $('netDot').className = 'dot ' + (on ? 'ok' : 'warn');
+  $('netTxt').textContent = on ? 'online' : 'OFFLINE — cash only';
+}
+window.addEventListener('online',  function(){ net(true); });
+window.addEventListener('offline', function(){ net(false); toast('No internet. Cash still works.'); });
+net(navigator.onLine);
+
+// Don't lose a cart to a stray swipe.
+window.addEventListener('beforeunload', function(e){
+  if (cart.length){ e.preventDefault(); e.returnValue = ''; }
+});
+
+// Refresh the buttons when Kari comes back from the admin page.
+document.addEventListener('visibilitychange', function(){
+  if (!document.hidden && code && !cart.length && !busy){
+    api('bootstrap', {}).then(load).catch(function(){});
+  }
+});
+
+})();
+</script>
+</body>
+</html>

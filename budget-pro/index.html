@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget Builder Pro — Kari Kounkel</title>
+<meta name="description" content="Annual sales goals to a 12-month budget with net profit targets, scenarios, snapshots, and P&L history import. By CARES Consulting.">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#0080ff; --blue-hot:#00b7ff; --blue-dark:#0052cc;
+    --white:#ffffff; --ink:#0a0a14; --text:#0f172a;
+    --muted:#64748b; --muted-lite:#94a3b8; --rule:#e2e8f0;
+    --green:#22c55e; --red:#ef4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--white);color:var(--text);font-family:'Figtree',sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:24px}
+  .eyebrow{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700}
+  h1{font-family:'DM Serif Display',serif;font-size:34px;color:var(--ink);font-weight:400}
+  .serif{font-family:'DM Serif Display',serif;font-weight:400}
+  .mono{font-family:'DM Mono',monospace}
+  .neon{background:var(--white);border-radius:14px;border:2px solid var(--blue);box-shadow:0 0 20px rgba(0,128,255,.28),0 0 44px rgba(0,128,255,.12),inset 0 0 18px rgba(0,128,255,.03);padding:20px 22px;margin-bottom:20px}
+  .neon.green{border-color:var(--green);box-shadow:0 0 20px rgba(34,197,94,.28),0 0 44px rgba(34,197,94,.12)}
+  .neon.soft{box-shadow:0 0 12px rgba(0,128,255,.18),0 0 26px rgba(0,128,255,.08)}
+  .neon.quiet{border:1.5px solid var(--rule);box-shadow:none}
+  .btn{display:inline-block;padding:10px 18px;background:var(--blue);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Figtree',sans-serif;box-shadow:0 4px 14px #0080ff88}
+  .btn:hover{background:var(--blue-dark)}
+  .btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--rule);box-shadow:none;font-weight:600}
+  .btn.ghost:hover{background:#f7f9fc}
+  .btn.danger{background:transparent;color:var(--red);border:1.5px solid var(--rule);box-shadow:none}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  input,select,textarea{padding:9px 12px;border:1.5px solid var(--rule);border-radius:8px;font-size:14px;font-family:'Figtree',sans-serif;color:var(--text);background:#fff;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--blue)}
+  label{font-size:11px;color:var(--muted);display:block;margin-bottom:4px}
+  table{border-collapse:collapse;width:100%;min-width:1160px}
+  th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:8px 6px;text-align:right;white-space:nowrap;border-bottom:2px solid var(--rule)}
+  th:first-child{text-align:left}
+  td{padding:4px 3px;text-align:right;font-size:12px}
+  td:first-child{text-align:left;white-space:nowrap}
+  .cell{width:74px;padding:4px 6px;border:1px solid var(--rule);border-radius:6px;font-size:12px;text-align:right;font-family:'DM Mono',monospace}
+  .cell.sb{background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.6)}
+  .sect td{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);font-weight:700;padding:14px 6px 6px}
+  .sub td{font-weight:700;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;padding:6px}
+  .netrow td{border-top:2px solid var(--ink);padding:10px 4px;font-family:'DM Mono',monospace;font-weight:700}
+  .pillrow{display:flex;gap:6px;flex-wrap:wrap}
+  .pill{padding:7px 13px;border-radius:100px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--rule);background:#fff;color:var(--muted)}
+  .pill.on{border-color:var(--blue);background:var(--blue);color:#fff}
+  .cards{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+  .card{flex:1 1 200px;padding:18px 22px}
+  .card .v{font-family:'DM Serif Display',serif;font-size:28px}
+  .card .s{font-size:12px;color:var(--muted);margin-top:4px}
+  .row{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap}
+  .grow{flex:1}
+  .tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;padding:3px 8px;border-radius:100px;font-weight:700}
+  .tag.live{background:rgba(34,197,94,.12);color:#15803d}
+  .tag.snap{background:rgba(148,163,184,.18);color:var(--muted)}
+  .del{border:none;background:none;color:var(--muted-lite);cursor:pointer;font-size:12px;margin-right:6px}
+  .del:hover{color:var(--red)}
+  .modal-bg{position:fixed;inset:0;background:rgba(10,10,20,.55);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+  .modal{background:#fff;border-radius:14px;border:2px solid var(--blue);box-shadow:0 0 30px rgba(0,128,255,.3);max-width:720px;width:100%;max-height:88vh;overflow:auto;padding:26px}
+  .hidden{display:none!important}
+  .footer-pill{display:inline-block;padding:10px 26px;background:linear-gradient(135deg,var(--blue),var(--blue-dark));border-radius:100px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.2em;color:#fff;font-weight:700;box-shadow:0 6px 20px rgba(0,128,255,.35)}
+  .methodnote{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted-lite);margin-left:6px}
+  .importPrev{max-height:280px;overflow:auto;border:1px solid var(--rule);border-radius:10px;margin-top:12px}
+  .importPrev table{min-width:0}
+  @media print{
+    .no-print{display:none!important}
+    .neon{box-shadow:none;border-color:#bbb}
+    body{font-size:11px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:26px">
+    <div>
+      <div class="eyebrow" style="color:var(--blue)">Budget Builder Pro · by CARES Consulting</div>
+      <h1>Budget Builder <span style="color:var(--blue);font-style:italic">Pro</span></h1>
+    </div>
+    <div class="no-print" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn ghost" onclick="window.print()">Print</button>
+      <button class="btn" id="btnExport" onclick="exportExcel()">Export to Excel</button>
+    </div>
+  </header>
+
+  <!-- Budget switcher -->
+  <div class="neon quiet no-print">
+    <div class="row">
+      <div>
+        <label>Your budgets</label>
+        <select id="budgetSelect" onchange="switchBudget(this.value)" style="min-width:260px"></select>
+      </div>
+      <span id="budgetTag"></span>
+      <button class="btn ghost" onclick="openNewBudget()">+ New budget</button>
+      <button class="btn ghost" onclick="renameBudget()">Rename</button>
+      <button class="btn ghost" onclick="snapshotBudget()">📸 Snapshot</button>
+      <button class="btn danger" onclick="deleteBudget()">Delete</button>
+      <div class="grow"></div>
+      <button class="btn" onclick="openImport()">Import P&amp;L history</button>
+    </div>
+    <div id="snapNote" class="hidden" style="margin-top:10px;font-size:12px;color:var(--muted)">
+      📸 You're viewing a snapshot — it's locked. Duplicate it as a new budget to make changes.
+    </div>
+  </div>
+
+  <!-- Goal -->
+  <div class="neon quiet">
+    <div class="row">
+      <div>
+        <label>Annual sales goal</label>
+        <input id="goalInput" style="font-size:20px;font-weight:700;width:190px">
+      </div>
+      <button class="btn" id="btnGoal" onclick="applyGoal()">Save &amp; recompute</button>
+      <div>
+        <label>Fiscal year starts</label>
+        <select id="fiscalStart" onchange="setFiscal(this.value)"></select>
+      </div>
+      <div class="grow"></div>
+      <div class="no-print">
+        <label>View</label>
+        <div class="pillrow">
+          <button class="pill" id="viewProj" onclick="setView('proj')">Projected only</button>
+          <button class="pill" id="viewFull" onclick="setView('full')">Projected + Sandbox</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary cards -->
+  <div class="cards" id="cards"></div>
+
+  <!-- Net profit target -->
+  <div class="neon quiet">
+    <div class="row">
+      <div>
+        <div class="eyebrow" style="color:var(--blue);margin-bottom:6px">Net Profit Target</div>
+        <div class="pillrow" id="targetPills"></div>
+      </div>
+      <div style="display:flex;gap:26px;flex-wrap:wrap" id="targetOut"></div>
+    </div>
+  </div>
+
+  <!-- Grid -->
+  <div class="neon soft" style="overflow-x:auto">
+    <table id="grid"></table>
+    <div class="no-print" style="margin-top:12px">
+      <button class="btn ghost" id="btnAddLine" onclick="openAddLine()">+ Add budget line</button>
+      <span class="methodnote" style="margin-left:12px">Sandbox cells (shaded) are your what-if lane — they never touch the plan.</span>
+    </div>
+  </div>
+
+  <!-- How this tool thinks -->
+  <div class="neon quiet no-print" style="padding:26px 28px">
+    <div class="eyebrow" style="color:var(--blue);margin-bottom:10px">How this tool thinks</div>
+    <div class="serif" style="font-size:24px;color:var(--ink);margin-bottom:12px">Start from the goal, not the spending.</div>
+    <p style="font-size:14px;color:var(--text);line-height:1.7;max-width:820px;margin-bottom:14px">
+      Most budgets start from expenses and hope. This one starts from the goal. You declare the year's
+      sales number first, and the whole budget arranges itself around it — which flips budgeting from
+      <em>"what did we spend?"</em> to <em>"what does hitting the goal require?"</em>
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;max-width:1100px">
+      <div>
+        <div class="mono" style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:6px">1 · THE SALES GOAL</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">Type one number — what you intend to sell this year. Hit <strong style="color:var(--text)">Save &amp; recompute</strong> and everything downstream recalculates.</p>
+      </div>
+      <div>
+        <div class="mono" style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:6px">2 · THE LINES</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">Every line gets a behavior. <strong style="color:var(--text)">% of sales</strong> rides with revenue (COGS at 35% means 35¢ of every dollar sold). <strong style="color:var(--text)">Fixed monthly</strong> doesn't care how business is going — rent is rent. <strong style="color:var(--text)">Manual</strong> is for the lumpy stuff you type month by month.</p>
+      </div>
+      <div>
+        <div class="mono" style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:6px">3 · THE GRID</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">All 12 months, every cell editable. Know December rent goes up? Click the cell and change it — that month sticks, the rest stay computed. The NET PROFIT row at the bottom tells you what the plan actually earns.</p>
+      </div>
+      <div>
+        <div class="mono" style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:6px">4 · THE TARGET</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">Pick the margin you want — say 13% of a $500,000 goal — and it answers three questions instantly: the target in dollars ($65,000), the <strong style="color:var(--text)">spending ceiling</strong> that still gets you there ($435,000), and whether this budget as drawn clears it (<span style="color:var(--green);font-weight:700">cushion</span>) or misses it (<span style="color:var(--red);font-weight:700">gap</span>).</p>
+      </div>
+      <div>
+        <div class="mono" style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:6px">5 · THE SANDBOX</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">Switch to <strong style="color:var(--text)">Projected + Sandbox</strong> and every line grows a shadow row — a what-if lane. Try "what if payroll were 20% instead of 22?" without touching the real plan. The sandbox keeps its own net.</p>
+      </div>
+      <div>
+        <div class="mono" style="font-size:11px;color:var(--blue);font-weight:700;margin-bottom:6px">6 · SNAPSHOTS &amp; IMPORT</div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6"><strong style="color:var(--text)">📸 Snapshot</strong> freezes a locked, dated copy so you can compare January's plan to June's reality. <strong style="color:var(--text)">Import P&amp;L history</strong> reads a QuickBooks profit &amp; loss export and rebuilds the whole budget scaled to your new goal — last year's truth, stretched to next year's ambition, in one paste.</p>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:16px;max-width:820px">
+      That's the whole idea: a goal at the top, a behavior on every line, a ceiling on spending — and a
+      <span style="color:var(--green);font-weight:700">green light</span> when the plan actually clears your margin.
+      Export to Excel anytime for a portable copy; your budgets save in this browser automatically.
+    </p>
+  </div>
+
+  <div style="text-align:center;padding:28px 0 40px">
+    <div class="footer-pill">BUILT FOR BUSINESS &nbsp;·&nbsp; BACKED BY CARES</div>
+    <div style="font-size:11px;color:var(--muted-lite);margin-top:12px">Budget Builder Pro · Your data lives in this browser (localStorage) — export to Excel for a portable copy.</div>
+  </div>
+</div>
+
+<!-- Add line modal -->
+<div class="modal-bg hidden" id="lineModal">
+  <div class="modal">
+    <div class="serif" style="font-size:22px;margin-bottom:16px">Add budget line</div>
+    <div class="row">
+      <div><label>Line name</label><input id="lnName" placeholder="e.g. Shipping"></div>
+      <div><label>Type</label><select id="lnType"></select></div>
+      <div><label>Method</label>
+        <select id="lnMethod" onchange="lineMethodUi()">
+          <option value="percent_sales">% of sales</option>
+          <option value="fixed_monthly">Fixed monthly</option>
+          <option value="manual_monthly">Manual by month</option>
+        </select>
+      </div>
+      <div id="lnPctWrap"><label>% of sales</label><input id="lnPct" type="number" style="width:90px" placeholder="4.5"></div>
+      <div id="lnFixWrap" class="hidden"><label>$ per month</label><input id="lnFix" type="number" style="width:110px" placeholder="2500"></div>
+    </div>
+    <div style="margin-top:18px;display:flex;gap:10px">
+      <button class="btn" onclick="addLine()">Add line</button>
+      <button class="btn ghost" onclick="closeModal('lineModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import modal -->
+<div class="modal-bg hidden" id="importModal">
+  <div class="modal">
+    <div class="serif" style="font-size:22px;margin-bottom:6px">Import P&amp;L history</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px">
+      Paste (or upload) a QuickBooks-style Profit &amp; Loss export — account names with an annual total,
+      or with monthly columns. We'll read each account's share of revenue and rebuild your budget
+      scaled to your sales goal.
+    </p>
+    <input type="file" id="csvFile" accept=".csv,.txt" class="no-print" onchange="fileToTextarea(this)" style="margin-bottom:10px">
+    <textarea id="csvPaste" rows="8" style="width:100%;font-family:'DM Mono',monospace;font-size:12px" placeholder="Income&#10;Sales,200000&#10;Cost of Goods Sold&#10;Materials,52000&#10;Expenses&#10;Rent,30000&#10;Payroll,88000"></textarea>
+    <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <button class="btn" onclick="previewImport()">Preview</button>
+      <span id="importMult" class="mono" style="font-size:12px;color:var(--muted)"></span>
+    </div>
+    <div id="importPrev" class="importPrev hidden"></div>
+    <div style="margin-top:16px;display:flex;gap:10px">
+      <button class="btn hidden" id="btnApplyImport" onclick="applyImport()">Replace lines with these</button>
+      <button class="btn ghost" onclick="closeModal('importModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============ engine (identical math to the free Budget Builder — verified) ============ */
+var LINE_TYPES = ["income","cogs","expense","other_income","other_expense"];
+var POSITIVE_TYPES = ["income","other_income"];
+var TYPE_LABELS = {income:"Income",cogs:"COGS",expense:"Expenses",other_income:"Other Income",other_expense:"Other Expenses"};
+var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function round2(n){ return Math.round(n*100)/100; }
+function distributeAnnual(annual){
+  var a = Number(annual)||0;
+  var base = round2(a/12);
+  var months = new Array(12).fill(base);
+  months[11] = round2(a - base*11);
+  return months;
+}
+function monthsFor(line, salesGoal, overrides){
+  var months;
+  if (line.allocation_method === "percent_sales"){
+    months = distributeAnnual((Number(salesGoal)||0) * ((Number(line.percent_of_sales)||0)/100));
+  } else if (line.allocation_method === "fixed_monthly"){
+    var v = round2(Number(line.fixed_monthly)||0);
+    months = new Array(12).fill(v);
+  } else {
+    months = (line.manual_months || new Array(12).fill(0)).map(function(v){ return round2(Number(v)||0); });
+  }
+  if (overrides){
+    months = months.map(function(v,i){ return (overrides[i]!=null && overrides[i]!=="") ? round2(Number(overrides[i])||0) : v; });
+  }
+  return months;
+}
+function annualFor(m){ return round2(m.reduce(function(s,v){return s+v;},0)); }
+function netProfitTarget(rev, pct, currentNet){
+  rev = Number(rev)||0;
+  var targetNet = round2(rev * ((Number(pct)||0)/100));
+  return {
+    targetNet: targetNet,
+    expenseCap: round2(rev - targetNet),
+    gap: round2((Number(currentNet)||0) - targetNet),
+    currentPct: rev > 0 ? ((Number(currentNet)||0)/rev)*100 : null
+  };
+}
+/* ============ state / persistence ============ */
+var LS_KEY = "kk-budget-pro-v1";
+var lineSeq = 1;
+var state = load();
+function blankBudget(name, year){
+  return {
+    id: "B" + Date.now() + Math.floor(Math.random()*1000),
+    name: name || ("Budget " + year),
+    year: year,
+    is_snapshot: false,
+    sales_goal: 500000,
+    fiscal_start: 0,
+    target_pct: 13,
+    view: "proj",
+    lines: [
+      mkLine("Sales","income","percent_sales",100,0),
+      mkLine("Cost of Goods Sold","cogs","percent_sales",35,0),
+      mkLine("Payroll & Wages","expense","percent_sales",22,0),
+      mkLine("Rent","expense","fixed_monthly",0,2500),
+      mkLine("Marketing","expense","percent_sales",4,0)
+    ],
+    overrides: {},   // lineId -> [12] projected overrides
+    sandbox: {}      // lineId -> [12] sandbox values (null = mirror projected)
+  };
+}
+function mkLine(name,type,method,pct,fix){
+  return { id: "L" + Date.now() + "_" + (lineSeq++), line_name:name, line_type:type, allocation_method:method, percent_of_sales:pct, fixed_monthly:fix, manual_months:new Array(12).fill(0) };
+}
+function load(){
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (raw){ var s = JSON.parse(raw); if (s && s.budgets && s.budgets.length) return s; }
+  } catch(e){}
+  var b = blankBudget(null, new Date().getFullYear());
+  return { budgets: [b], activeId: b.id };
+}
+function save(){ try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){} }
+function cur(){ return state.budgets.find(function(b){return b.id===state.activeId;}) || state.budgets[0]; }
+function locked(){ return !!cur().is_snapshot; }
+/* ============ derived ============ */
+function valueMap(b){
+  var m = {};
+  b.lines.forEach(function(l){ m[l.id] = monthsFor(l, b.sales_goal, b.overrides[l.id]); });
+  return m;
+}
+function sandboxMap(b, vm){
+  var m = {};
+  b.lines.forEach(function(l){
+    var sb = b.sandbox[l.id];
+    m[l.id] = vm[l.id].map(function(v,i){ return (sb && sb[i]!=null && sb[i]!=="") ? round2(Number(sb[i])||0) : v; });
+  });
+  return m;
+}
+function totalsOf(b, map){
+  var income=0, outgo=0, netMonths=new Array(12).fill(0);
+  b.lines.forEach(function(l){
+    var a = annualFor(map[l.id]);
+    var pos = POSITIVE_TYPES.indexOf(l.line_type) >= 0;
+    if (pos) income = round2(income+a); else outgo = round2(outgo+a);
+    map[l.id].forEach(function(v,i){ netMonths[i] = round2(netMonths[i] + (pos?v:-v)); });
+  });
+  var net = round2(income-outgo);
+  return { income:income, outgo:outgo, net:net, netMonths:netMonths, margin: income>0 ? (net/income)*100 : null };
+}
+/* ============ formatting ============ */
+function fmt(n){ return (Number(n)||0).toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}); }
+function fmt2(n){ return (Number(n)||0).toLocaleString("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2}); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+/* ============ render ============ */
+function render(){
+  var b = cur();
+  var vm = valueMap(b);
+  var sm = sandboxMap(b, vm);
+  var tp = totalsOf(b, vm);
+  var ts = totalsOf(b, sm);
+  var full = b.view === "full";
+  var lock = locked();
+
+  // switcher
+  var sel = document.getElementById("budgetSelect");
+  sel.innerHTML = state.budgets.map(function(x){
+    return '<option value="'+x.id+'"'+(x.id===b.id?" selected":"")+'>'+esc(x.name)+(x.is_snapshot?" 📸":"")+'</option>';
+  }).join("");
+  document.getElementById("budgetTag").innerHTML = lock ? '<span class="tag snap">SNAPSHOT · LOCKED</span>' : '<span class="tag live">LIVE</span>';
+  document.getElementById("snapNote").classList.toggle("hidden", !lock);
+
+  // goal + fiscal
+  document.getElementById("goalInput").value = b.sales_goal;
+  document.getElementById("goalInput").disabled = lock;
+  document.getElementById("btnGoal").disabled = lock;
+  document.getElementById("btnAddLine").disabled = lock;
+  var fs = document.getElementById("fiscalStart");
+  fs.innerHTML = MONTHS.map(function(m,i){ return '<option value="'+i+'"'+(i===b.fiscal_start?" selected":"")+'>'+m+'</option>'; }).join("");
+  fs.disabled = lock;
+  document.getElementById("viewProj").classList.toggle("on", !full);
+  document.getElementById("viewFull").classList.toggle("on", full);
+
+  // cards
+  var cards = [
+    {label:"Projected Income", v:fmt(tp.income), s:null, c:"var(--blue)", cls:"quiet"},
+    // green neon is reserved for exactly this: a positive net profit verdict
+    {label:"Projected Net Profit", v:fmt(tp.net), s: tp.margin!=null ? round2(tp.margin)+"% margin" : "add an income line", c: tp.net>=0?"var(--green)":"var(--red)", cls: tp.net>=0?"green":"quiet"}
+  ];
+  if (full) cards.push({label:"Sandbox Net Profit", v:fmt(ts.net), s: ts.margin!=null ? round2(ts.margin)+"% margin · what-if lane" : "", c:"var(--ink)", cls:"quiet"});
+  document.getElementById("cards").innerHTML = cards.map(function(c){
+    return '<div class="neon card '+c.cls+'" style="margin-bottom:0"><div class="eyebrow" style="color:var(--muted);margin-bottom:6px">'+c.label+'</div><div class="v" style="color:'+c.c+'">'+c.v+'</div>'+(c.s?'<div class="s">'+c.s+'</div>':'')+'</div>';
+  }).join("");
+
+  // target calculator
+  var pills = [10,13,15,20,24].map(function(p){
+    return '<button class="pill'+(Number(b.target_pct)===p?" on":"")+'" onclick="setTarget('+p+')">'+p+'%</button>';
+  }).join("") + '<input type="number" style="width:70px" value="'+b.target_pct+'" onchange="setTarget(this.value)">';
+  document.getElementById("targetPills").innerHTML = pills;
+  var c = netProfitTarget(tp.income, b.target_pct, tp.net);
+  var cs = full ? netProfitTarget(ts.income, b.target_pct, ts.net) : null;
+  var out = '';
+  out += tOut("Target net at "+(Number(b.target_pct)||0)+"%", fmt(c.targetNet), "var(--ink)");
+  out += tOut("Spending ceiling to hit it", fmt(c.expenseCap), "var(--ink)");
+  out += tOut(c.gap>=0?"Cushion above target":"Gap to close", fmt(Math.abs(c.gap)), c.gap>=0?"var(--green)":"var(--red)");
+  if (cs) out += tOut("Sandbox " + (cs.gap>=0?"cushion":"gap"), fmt(Math.abs(cs.gap)), cs.gap>=0?"var(--green)":"var(--red)");
+  document.getElementById("targetOut").innerHTML = out;
+
+  // grid
+  var labels = MONTHS.map(function(_,i){ return MONTHS[(b.fiscal_start+i)%12]; });
+  var h = '<thead><tr><th>Line</th>' + labels.map(function(m){return '<th>'+m+'</th>';}).join("") + '<th>Annual</th><th>% Sales</th></tr></thead>';
+  LINE_TYPES.forEach(function(type){
+    var sect = b.lines.filter(function(l){return l.line_type===type;});
+    if (!sect.length) return;
+    h += '<tbody><tr class="sect"><td colspan="15">'+TYPE_LABELS[type]+'</td></tr>';
+    var sectM = new Array(12).fill(0);
+    sect.forEach(function(l){
+      var m = vm[l.id], a = annualFor(m);
+      m.forEach(function(v,i){ sectM[i]=round2(sectM[i]+v); });
+      var meth = l.allocation_method==="percent_sales" ? l.percent_of_sales+"%" : l.allocation_method==="fixed_monthly" ? "fixed" : "manual";
+      h += '<tr><td>' + (lock?'':'<button class="del no-print" onclick="removeLine(\''+l.id+'\')" title="Delete line">✕</button>') + esc(l.line_name) + '<span class="methodnote">'+meth+'</span></td>';
+      m.forEach(function(v,i){
+        h += '<td><input class="cell" '+(lock?"disabled":"")+' value="'+v+'" onchange="setCell(\''+l.id+'\','+i+',this.value)"></td>';
+      });
+      h += '<td class="mono" style="font-weight:700">'+fmt2(a)+'</td>';
+      h += '<td class="mono" style="color:var(--muted)">'+(b.sales_goal>0?round2((a/b.sales_goal)*100)+"%":"—")+'</td></tr>';
+      if (full){
+        var sb = sm[l.id];
+        h += '<tr><td style="color:var(--muted);font-size:11px;padding-left:26px">↳ sandbox</td>';
+        sb.forEach(function(v,i){
+          h += '<td><input class="cell sb" '+(lock?"disabled":"")+' value="'+v+'" onchange="setSandbox(\''+l.id+'\','+i+',this.value)"></td>';
+        });
+        h += '<td class="mono" style="color:var(--muted)">'+fmt2(annualFor(sb))+'</td><td></td></tr>';
+      }
+    });
+    h += '<tr class="sub"><td>Subtotal</td>' + sectM.map(function(v){return '<td>'+fmt(v)+'</td>';}).join("") + '<td>'+fmt2(annualFor(sectM))+'</td><td></td></tr></tbody>';
+  });
+  h += '<tbody><tr class="netrow"><td>NET PROFIT</td>' + tp.netMonths.map(function(v){
+    return '<td style="color:'+(v>=0?"var(--green)":"var(--red)")+'">'+fmt(v)+'</td>';
+  }).join("") + '<td style="color:'+(tp.net>=0?"var(--green)":"var(--red)")+';font-size:13px">'+fmt2(tp.net)+'</td><td style="color:var(--muted)">'+(tp.margin!=null?round2(tp.margin)+"%":"—")+'</td></tr>';
+  if (full){
+    h += '<tr class="netrow" style="border-top:none"><td style="color:var(--muted)">SANDBOX NET</td>' + ts.netMonths.map(function(v){
+      return '<td style="color:var(--muted)">'+fmt(v)+'</td>';
+    }).join("") + '<td style="color:var(--muted);font-size:13px">'+fmt2(ts.net)+'</td><td style="color:var(--muted)">'+(ts.margin!=null?round2(ts.margin)+"%":"—")+'</td></tr>';
+  }
+  h += '</tbody>';
+  document.getElementById("grid").innerHTML = h;
+  save();
+}
+function tOut(label, v, color){
+  return '<div><div style="font-size:11px;color:var(--muted)">'+label+'</div><div class="serif" style="font-size:22px;color:'+color+'">'+v+'</div></div>';
+}
+/* ============ actions ============ */
+function switchBudget(id){ state.activeId = id; render(); }
+function openNewBudget(){
+  var name = prompt("Name for the new budget:", "Budget " + new Date().getFullYear());
+  if (!name) return;
+  var b = blankBudget(name, new Date().getFullYear());
+  state.budgets.push(b); state.activeId = b.id; render();
+}
+function renameBudget(){
+  var b = cur();
+  var name = prompt("New name:", b.name);
+  if (name){ b.name = name; render(); }
+}
+function snapshotBudget(){
+  var b = cur();
+  var copy = JSON.parse(JSON.stringify(b));
+  copy.id = "B" + Date.now() + Math.floor(Math.random()*1000);
+  copy.name = b.name + " — snapshot " + new Date().toLocaleDateString();
+  copy.is_snapshot = true;
+  state.budgets.push(copy);
+  alert("Snapshot saved. It's locked — duplicate it later if you want to branch from it.");
+  render();
+}
+function deleteBudget(){
+  if (state.budgets.length === 1){ alert("This is your only budget — make another before deleting this one."); return; }
+  var b = cur();
+  if (!confirm('Delete "'+b.name+'"? This cannot be undone.')) return;
+  state.budgets = state.budgets.filter(function(x){return x.id!==b.id;});
+  state.activeId = state.budgets[0].id;
+  render();
+}
+function applyGoal(){
+  if (locked()) return;
+  var b = cur();
+  b.sales_goal = Number(String(document.getElementById("goalInput").value).replace(/[^0-9.]/g,""))||0;
+  b.overrides = {};  // recompute clears projected overrides (legacy behavior, on purpose)
+  render();
+}
+function setFiscal(v){ cur().fiscal_start = Number(v)||0; render(); }
+function setView(v){ cur().view = v; render(); }
+function setTarget(v){ cur().target_pct = Number(v)||0; render(); }
+function setCell(lineId, mi, val){
+  if (locked()) return;
+  var b = cur();
+  var arr = b.overrides[lineId] || new Array(12).fill(null);
+  arr[mi] = val === "" ? null : val;
+  b.overrides[lineId] = arr;
+  render();
+}
+function setSandbox(lineId, mi, val){
+  if (locked()) return;
+  var b = cur();
+  var arr = b.sandbox[lineId] || new Array(12).fill(null);
+  arr[mi] = val === "" ? null : val;
+  b.sandbox[lineId] = arr;
+  render();
+}
+function removeLine(id){
+  if (locked()) return;
+  var b = cur();
+  b.lines = b.lines.filter(function(l){return l.id!==id;});
+  delete b.overrides[id]; delete b.sandbox[id];
+  render();
+}
+/* add line modal */
+function openAddLine(){
+  document.getElementById("lnType").innerHTML = LINE_TYPES.map(function(t){
+    return '<option value="'+t+'"'+(t==="expense"?" selected":"")+'>'+TYPE_LABELS[t]+'</option>';
+  }).join("");
+  document.getElementById("lnName").value = "";
+  document.getElementById("lnPct").value = "";
+  document.getElementById("lnFix").value = "";
+  lineMethodUi();
+  document.getElementById("lineModal").classList.remove("hidden");
+}
+function lineMethodUi(){
+  var m = document.getElementById("lnMethod").value;
+  document.getElementById("lnPctWrap").classList.toggle("hidden", m!=="percent_sales");
+  document.getElementById("lnFixWrap").classList.toggle("hidden", m!=="fixed_monthly");
+}
+function addLine(){
+  var name = document.getElementById("lnName").value.trim();
+  if (!name) return;
+  cur().lines.push(mkLine(
+    name,
+    document.getElementById("lnType").value,
+    document.getElementById("lnMethod").value,
+    Number(document.getElementById("lnPct").value)||0,
+    Number(document.getElementById("lnFix").value)||0
+  ));
+  closeModal("lineModal");
+  render();
+}
+function closeModal(id){ document.getElementById(id).classList.add("hidden"); }
+/* ============ CSV import (QBO-style P&L) ============ */
+var importResult = null;
+function openImport(){
+  if (locked()){ alert("Snapshots are locked — switch to a live budget first."); return; }
+  importResult = null;
+  document.getElementById("importPrev").classList.add("hidden");
+  document.getElementById("btnApplyImport").classList.add("hidden");
+  document.getElementById("importMult").textContent = "";
+  document.getElementById("importModal").classList.remove("hidden");
+}
+function fileToTextarea(input){
+  var f = input.files && input.files[0];
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function(){ document.getElementById("csvPaste").value = r.result; };
+  r.readAsText(f);
+}
+function splitCsvRow(row){
+  var out = [], curV = "", inQ = false;
+  for (var i=0;i<row.length;i++){
+    var ch = row[i];
+    if (ch === '"'){ inQ = !inQ; continue; }
+    if (ch === ',' && !inQ){ out.push(curV); curV=""; continue; }
+    curV += ch;
+  }
+  out.push(curV);
+  return out.map(function(s){return s.trim();});
+}
+function parseAmount(s){
+  if (s == null) return null;
+  s = String(s).trim();
+  if (!s) return null;
+  var neg = /^\(.*\)$/.test(s);
+  s = s.replace(/[$,()\s]/g,"");
+  if (s === "" || isNaN(Number(s))) return null;
+  var n = Number(s);
+  return neg ? -n : n;
+}
+function sectionFor(label){
+  var t = label.toLowerCase();
+  if (/other income/.test(t)) return "other_income";
+  if (/other expense/.test(t)) return "other_expense";
+  if (/cost of goods|cogs/.test(t)) return "cogs";
+  if (/income|revenue|sales$/.test(t)) return "income";
+  if (/expense/.test(t)) return "expense";
+  return null;
+}
+function parsePl(text){
+  var rows = text.split(/\r?\n/).map(splitCsvRow).filter(function(r){ return r.some(function(c){return c!=="";}); });
+  var section = "income";
+  var accounts = [];
+  rows.forEach(function(r){
+    var name = r[0] || "";
+    if (!name) return;
+    if (/^total/i.test(name) || /^net /i.test(name) || /^gross /i.test(name)) {
+      // leaving a section via its Total row is fine — section switches on next header
+      return;
+    }
+    var nums = r.slice(1).map(parseAmount).filter(function(n){return n!=null;});
+    if (!nums.length){
+      var s = sectionFor(name);
+      if (s) section = s;
+      return;
+    }
+    // last numeric column is the annual total when multiple columns present (QBO puts Total last)
+    var annual = nums.length > 1 ? nums[nums.length-1] : nums[0];
+    // sanity: if 12+ columns, prefer the sum of the first 12 months
+    if (nums.length >= 12){
+      var sum = round2(nums.slice(0,12).reduce(function(a,v){return a+v;},0));
+      annual = sum;
+    }
+    accounts.push({ name: name, line_type: section, annual: annual });
+  });
+  return accounts;
+}
+function previewImport(){
+  var text = document.getElementById("csvPaste").value;
+  var goal = cur().sales_goal;
+  var accounts = parsePl(text);
+  var totalRevenue = accounts.filter(function(a){return POSITIVE_TYPES.indexOf(a.line_type)>=0;})
+    .reduce(function(s,a){return s+Math.abs(a.annual);},0);
+  if (!accounts.length || !totalRevenue){
+    document.getElementById("importMult").textContent = accounts.length ? "No income rows found — check the paste." : "Nothing parseable found — check the paste.";
+    return;
+  }
+  var mult = goal/totalRevenue;
+  importResult = accounts.filter(function(a){return Math.abs(a.annual)>0.005;}).map(function(a){
+    return {
+      name: a.name, line_type: a.line_type,
+      pct: Math.round((Math.abs(a.annual)/totalRevenue)*10000)/100,
+      newAnnual: round2(Math.abs(a.annual)*mult)
+    };
+  });
+  document.getElementById("importMult").textContent =
+    "History revenue " + fmt(totalRevenue) + " → goal " + fmt(goal) + " (×" + (Math.round(mult*100)/100) + ")";
+  var h = '<table><thead><tr><th>Account</th><th>Type</th><th>% of revenue</th><th>Scaled annual</th></tr></thead><tbody>';
+  importResult.forEach(function(a){
+    h += '<tr><td>'+esc(a.name)+'</td><td style="text-align:right">'+TYPE_LABELS[a.line_type]+'</td><td>'+a.pct+'%</td><td>'+fmt2(a.newAnnual)+'</td></tr>';
+  });
+  h += '</tbody></table>';
+  var prev = document.getElementById("importPrev");
+  prev.innerHTML = h;
+  prev.classList.remove("hidden");
+  document.getElementById("btnApplyImport").classList.remove("hidden");
+}
+function applyImport(){
+  if (!importResult || !importResult.length) return;
+  var b = cur();
+  if (!confirm("Replace ALL current lines in \""+b.name+"\" with the " + importResult.length + " imported lines? (Take a snapshot first if you want to keep the current version.)")) return;
+  b.lines = importResult.map(function(a){ return mkLine(a.name, a.line_type, "percent_sales", a.pct, 0); });
+  b.overrides = {}; b.sandbox = {};
+  closeModal("importModal");
+  render();
+}
+/* ============ Excel export ============ */
+function exportExcel(){
+  var btn = document.getElementById("btnExport");
+  btn.disabled = true; btn.textContent = "Exporting…";
+  function done(){ btn.disabled = false; btn.textContent = "Export to Excel"; }
+  function run(){
+    try {
+      var b = cur();
+      var vm = valueMap(b), sm = sandboxMap(b, vm), tp = totalsOf(b, vm), ts = totalsOf(b, sm);
+      var labels = MONTHS.map(function(_,i){ return MONTHS[(b.fiscal_start+i)%12]; });
+      var rows = [["Line","Type","Method"].concat(labels).concat(["Annual","% of Sales"])];
+      LINE_TYPES.forEach(function(type){
+        b.lines.filter(function(l){return l.line_type===type;}).forEach(function(l){
+          var m = vm[l.id], a = annualFor(m);
+          var meth = l.allocation_method==="percent_sales" ? (l.percent_of_sales+"% of sales") : l.allocation_method==="fixed_monthly" ? "Fixed monthly" : "Manual";
+          rows.push([l.line_name, TYPE_LABELS[l.line_type], meth].concat(m).concat([a, b.sales_goal>0 ? round2((a/b.sales_goal)*100)+"%" : ""]));
+          if (b.view === "full"){
+            var sb = sm[l.id]; // real sandbox values — the legacy export bug is fixed here
+            rows.push([l.line_name+" (sandbox)","",""].concat(sb).concat([annualFor(sb),""]));
+          }
+        });
+      });
+      rows.push([]);
+      rows.push(["NET PROFIT","",""].concat(tp.netMonths).concat([tp.net, tp.margin!=null?round2(tp.margin)+"%":""]));
+      if (b.view === "full") rows.push(["SANDBOX NET","",""].concat(ts.netMonths).concat([ts.net, ts.margin!=null?round2(ts.margin)+"%":""]));
+      rows.push(["Annual Sales Goal","",""].concat(new Array(12).fill("")).concat([b.sales_goal,""]));
+      var ws = XLSX.utils.aoa_to_sheet(rows);
+      ws["!cols"] = [{wch:26},{wch:14},{wch:16}].concat(new Array(12).fill({wch:10})).concat([{wch:12},{wch:10}]);
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Budget");
+      XLSX.writeFile(wb, (b.name.replace(/[^a-z0-9 _-]/gi,"") || "budget") + ".xlsx");
+    } catch(e){ alert("Export hit a snag — try again."); }
+    done();
+  }
+  if (window.XLSX) return run();
+  var s = document.createElement("script");
+  s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+  s.onload = run;
+  s.onerror = function(){ alert("Couldn't load the Excel library — check your connection."); done(); };
+  document.head.appendChild(s);
+}
+/* ============ boot ============ */
+render();
+</script>
+</body>
+</html>
