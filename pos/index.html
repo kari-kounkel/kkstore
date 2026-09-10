@@ -9,6 +9,14 @@
 <meta name="robots" content="noindex, nofollow">
 <title>K Co Register</title>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Mono:wght@400;500&family=Nunito+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Google Analytics (GA4) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-WHKMKCD1SD"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-WHKMKCD1SD');
+</script>
 <style>
   :root{
     --pink:#E0381F; --orange:#F07830; --navy:#3a2a22; --text:#2e231d;
@@ -223,6 +231,10 @@
   .gate .brand{font-size:40px;margin-bottom:4px}
   .gate .hand{font-family:'Caveat',cursive;font-size:24px;color:var(--muted);margin-bottom:22px}
   .gate-box{width:100%;max-width:380px}
+  .ip{
+    position:absolute;bottom:0;left:0;right:0;padding:18px 24px max(18px,env(safe-area-inset-bottom));
+    font-size:10px;line-height:1.5;color:var(--muted);text-align:center;max-width:640px;margin:0 auto;
+  }
   .err{
     color:var(--pink);font-size:14px;text-align:center;margin-top:12px;
     font-weight:700;min-height:20px;
@@ -256,6 +268,7 @@
     <div class="err" id="gateErr"></div>
     <button class="btn btn-card" id="unlock" style="width:100%;margin-top:6px">Open the register</button>
   </div>
+  <div class="ip">K Co Register is the proprietary intellectual property of CARES Consulting, Inc. &amp; Kari Hoglund Kounkel. © 2025–2026. All rights reserved. Unauthorized use, duplication, hosting, or distribution is strictly prohibited.</div>
 </div>
 
 <!-- ============ register ============ -->
@@ -857,5 +870,6 @@ document.addEventListener('visibilitychange', function(){
 
 })();
 </script>
+<script src="https://chat.karikounkel.com/widget.js" defer></script>
 </body>
 </html>
