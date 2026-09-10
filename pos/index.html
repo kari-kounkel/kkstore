@@ -62,6 +62,14 @@
   .dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:0 0 auto}
   .dot.ok{background:var(--green)} .dot.warn{background:var(--orange)}
 
+  /* ASK, shrunk to a chip. No floating bubble over the register at a busy table. */
+  .help{
+    font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.06em;font-weight:500;
+    padding:7px 15px;border-radius:100px;border:1.5px solid var(--pink);
+    color:var(--pink);background:var(--white);white-space:nowrap;
+  }
+  .help:active{background:var(--pink);color:#fff}
+
   .main{flex:1;display:flex;min-height:0}
 
   /* ---------------- product grid ---------------- */
@@ -279,6 +287,7 @@
     <div class="bar-spacer"></div>
     <div class="chip" id="readerChip"><span class="dot" id="readerDot"></span><span id="readerTxt">reader</span></div>
     <div class="chip" id="netChip"><span class="dot ok" id="netDot"></span><span id="netTxt">online</span></div>
+    <button class="help" id="helpBtn">HELP!</button>
   </div>
 
   <div class="main">
@@ -835,6 +844,74 @@ function payByPhone(){
 }
 
 /* ---------------------------------------------------------
+   HELP! — ASK™, stripped to one button and one box.
+
+   It writes into the same conversations/messages tables the full ASK
+   widget uses, so it lands in the same queue Kari already reads. No name,
+   no email, no consent checkboxes: it is coming from /pos, so we already
+   know who it is. The event name rides along as context.
+--------------------------------------------------------- */
+var ASK_URL = 'https://rhbmuxvbmmlbkjegwtgr.supabase.co';
+var ASK_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJoYm11eHZibW1sYmtqZWd3dGdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NDY0NjYsImV4cCI6MjA5MDMyMjQ2Nn0.D1qyXKPcDypXFTLdxk2fARkNPQKTiwJeTTX--ifc8UM';
+var ASK_H = { 'Content-Type':'application/json', 'apikey':ASK_KEY, 'Authorization':'Bearer ' + ASK_KEY };
+
+function sendHelp(text){
+  var where = 'K Co Register' + (evt ? ' — ' + evt.name : '');
+  return fetch(ASK_URL + '/rest/v1/conversations', {
+    method:'POST',
+    headers: Object.assign({}, ASK_H, { 'Prefer':'return=representation' }),
+    body: JSON.stringify({
+      visitor_id: 'pos_' + Date.now(),
+      visitor_name: where,
+      visitor_email: 'kari@karikounkel.com',
+      site_origin: window.location.origin + '/pos',
+      type: 'support',
+      status: 'open'
+    })
+  }).then(function(r){
+    if (!r.ok) return r.text().then(function(t){ throw new Error('Could not open a ticket (' + r.status + ')'); });
+    return r.json();
+  }).then(function(rows){
+    var id = rows && rows[0] && rows[0].id;
+    if (!id) throw new Error('No conversation came back.');
+    return fetch(ASK_URL + '/rest/v1/messages', {
+      method:'POST',
+      headers: Object.assign({}, ASK_H, { 'Prefer':'return=minimal' }),
+      body: JSON.stringify({ conversation_id:id, sender:'visitor', sender_name:null, body:text })
+    });
+  });
+}
+
+$('helpBtn').addEventListener('click', function(){
+  var v = document.createElement('div');
+  v.className = 'veil'; v.style.zIndex = 92;
+  v.innerHTML =
+    '<div class="sheet"><h2>Help!</h2>' +
+    '<div class="hint">goes straight to Kari’s ASK™ queue — nothing to fill in</div>' +
+    '<textarea class="field" id="_h" rows="4" placeholder="What’s going on?" ' +
+    'style="text-align:left;resize:none;line-height:1.5"></textarea>' +
+    '<div class="sheet-actions"><button class="btn btn-ghost" id="_no">Never mind</button>' +
+    '<button class="btn btn-card" id="_yes">Send</button></div></div>';
+  document.body.appendChild(v);
+  var box = v.querySelector('#_h');
+  setTimeout(function(){ box.focus(); }, 60);
+  function close(){ document.body.removeChild(v); }
+  v.querySelector('#_no').addEventListener('click', close);
+  v.querySelector('#_yes').addEventListener('click', function(){
+    var text = box.value.trim();
+    if (!text) return close();
+    var go = v.querySelector('#_yes');
+    go.disabled = true; go.textContent = 'Sending…';
+    sendHelp(text).then(function(){
+      close(); toast('Sent. It’s in the ASK queue.');
+    }).catch(function(e){
+      go.disabled = false; go.textContent = 'Send';
+      toast(e.message);
+    });
+  });
+});
+
+/* ---------------------------------------------------------
    small things
 --------------------------------------------------------- */
 var toastTimer = null;
@@ -870,6 +947,5 @@ document.addEventListener('visibilitychange', function(){
 
 })();
 </script>
-<script src="https://chat.karikounkel.com/widget.js" defer></script>
 </body>
 </html>
