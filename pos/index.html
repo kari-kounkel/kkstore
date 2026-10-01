@@ -272,7 +272,7 @@
   <div class="hand">let's sell some books</div>
   <div class="gate-box">
     <input class="field mono" id="code" type="password" inputmode="numeric"
-           autocomplete="off" placeholder="passcode" aria-label="Passcode">
+           autocomplete="off" maxlength="6" placeholder="MMDDYY" aria-label="Today's date, MMDDYY">
     <div class="err" id="gateErr"></div>
     <button class="btn btn-card" id="unlock" style="width:100%;margin-top:6px">Open the register</button>
   </div>
@@ -372,6 +372,10 @@ function unlock(){
     load(d);
   }).catch(function(e){
     code = '';
+    // The code is today's date, so a remembered one goes stale at midnight.
+    // Clear it instead of leaving a dead code sitting in the box.
+    try { localStorage.removeItem('kco_pos_code'); } catch(err){}
+    $('code').value = '';
     $('gateErr').textContent = e.message;
   });
 }

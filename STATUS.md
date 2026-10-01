@@ -97,7 +97,7 @@ Court of Accounts chat: 07-29, the audit reconciliation into THE-LIST.html was f
 ## Next steps
 0. **PICK UP HERE.** Schema, code, and deploy are all done. Three things left, in order:
    a. In a terminal (the Terminal tab beside the Claude Code chat, sitting at `C:\dev\karikounkel`): `supabase login` — it opens a browser to authorize. Claude cannot do this step.
-   b. Then Claude can run: `supabase secrets set POS_ACCESS_CODE=<Kari picks this> --project-ref lheytkgixafdhluuvrbg` and `supabase functions deploy pos --project-ref lheytkgixafdhluuvrbg`. After that `/pos` unlocks and cash sales work immediately.
+   b. Then one command: `supabase functions deploy pos --project-ref lheytkgixafdhluuvrbg`. No passcode to set — it is todays date, MMDDYY, in Central time. After that `/pos` unlocks and cash sales work immediately.
    c. Return the M2 (Stripe Dashboard → Terminal → Orders → **Cancel** if still Pending, otherwise **Return items** — 30-day window, original packaging). Order a **BBPOS WisePOS E** from [dashboard.stripe.com/terminal/shop](https://dashboard.stripe.com/terminal/shop), register it to a Terminal Location, set `POS_READER_ID`, and the CARD button lights up. Full walkthrough in `pos/README.md`.
 1. Find the site-map chat (around 07-19) and rebuild the CoA page so it isn't boring — chicken-dealer card style, SEO keywords, on-brand palette (`coa-brand-palette.md`).
 2. Wire order alerts through the existing `kcocares.com` hub; get `kcocares.com` deployed/live.
@@ -106,7 +106,7 @@ Court of Accounts chat: 07-29, the audit reconciliation into THE-LIST.html was f
 5. Build the planned store SKUs (CARES Works Membership, tools) and the cross-publish pipeline (marble + store card + tools.caresmn.com card + caresmn.com).
 
 ## Pending / frozen items
-- **Waiting on Kari (POS):** buy the reader (WisePOS E — **not** the M2); pick a `POS_ACCESS_CODE`; decide the sales-tax rate per event (books are taxable in MN; set 0 if not collecting); confirm the real prices for Ladybug Ladybug, Chasing Chickens, Prayer Bible, Tiny Town, Little Prescriptions — several have `price: null` in the catalog and three aren't in it at all.
+- **Waiting on Kari (POS):** buy the reader (WisePOS E — **not** the M2); decide the sales-tax rate per event (books are taxable in MN; set 0 if not collecting); confirm the real prices for Ladybug Ladybug, Chasing Chickens, Prayer Bible, Tiny Town, Little Prescriptions — several have `price: null` in the catalog and three aren't in it at all.
 - **POS not deployed yet:** schema not run, function not deployed, secrets not set. Nothing is live until those four commands run.
 - **Waiting on Kari:** final CoA PDF edit; domain choice (`coa.karikounkel.com` vs `coa.caresmn.com`); "what pro suite is supposed to be" structure doc — not found on 08-21 ("it's not there").
 - **Waiting on Kari:** new interface vs keep patching FlowSuite Pro (08-23).

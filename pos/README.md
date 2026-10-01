@@ -95,14 +95,32 @@ None of them ever reaches the iPad.
 | Variable | What it is | Needed |
 |---|---|---|
 | `STRIPE_SECRET_KEY` | `sk_live_…` — already set for the store | yes |
-| `POS_ACCESS_CODE` | The passcode you type on the iPad. Pick something you'll remember but a stranger won't guess. | yes |
 | `POS_READER_ID` | `tmr_…` from your registered reader | once you own one |
 | `POS_ORIGIN` | `https://karikounkel.shop` — return URL for the QR fallback | optional |
+| `POS_ACCESS_CODE` | A fixed backup code. Only set this if you want one. | no |
 | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | set by Supabase automatically | — |
 
+### The passcode is today's date
+
+Type **MMDDYY**. October 1, 2026 is `100126`. Nothing to invent, nothing to
+remember, nothing to write on a sticky note that lives on the iPad.
+
+It's computed in **America/Chicago**, not UTC — the function runs on a server
+somewhere else and UTC flips over at 6 or 7pm Central, which would change the
+code in the middle of an evening event. Yesterday's date also works, so a fair
+running past midnight doesn't lock you out at 12:01am.
+
+If you ever want a fixed code as well, set `POS_ACCESS_CODE` and it'll be
+accepted alongside the date:
+
 ```bash
-supabase secrets set POS_ACCESS_CODE=your-passcode --project-ref lheytkgixafdhluuvrbg
+supabase secrets set POS_ACCESS_CODE=your-backup --project-ref lheytkgixafdhluuvrbg
 ```
+
+> **Know what this is.** A date is a passcode anyone can guess if they know the
+> scheme. It keeps a stranger from wandering in off a stray link; it is not a
+> real secret. The page is `noindex` and linked from nowhere. If the register
+> ever holds something you'd hate a stranger to see, set `POS_ACCESS_CODE` too.
 
 > **The secret key never leaves the server.** The iPad holds only the public
 > `anon` key (already public on the storefront) and your passcode. Every price

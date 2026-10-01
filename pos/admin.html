@@ -177,7 +177,7 @@
   <div class="brand" style="font-size:36px">K<em>Co</em> Register</div>
   <div class="hand" style="margin-bottom:20px">setup &amp; totals</div>
   <div style="width:100%;max-width:360px">
-    <input class="in mono" id="code" type="password" inputmode="numeric" placeholder="passcode" style="text-align:center">
+    <input class="in mono" id="code" type="password" inputmode="numeric" maxlength="6" placeholder="MMDDYY" style="text-align:center">
     <div class="err" id="gateErr"></div>
     <button class="btn btn-p" id="unlock" style="width:100%">Unlock</button>
   </div>
@@ -293,7 +293,13 @@ function unlock(){
     sel = live ? live.id : (events[0] ? events[0].id : null);
     drawEvents();
     if (sel) loadEvent(sel);
-  }).catch(function(e){ code=''; $('gateErr').textContent = e.message; });
+  }).catch(function(e){
+    code = '';
+    // Today's date is the code, so a remembered one dies at midnight.
+    try { localStorage.removeItem('kco_pos_code'); } catch(err){}
+    $('code').value = '';
+    $('gateErr').textContent = e.message;
+  });
 }
 $('unlock').addEventListener('click', unlock);
 $('code').addEventListener('keydown', function(e){ if (e.key === 'Enter') unlock(); });

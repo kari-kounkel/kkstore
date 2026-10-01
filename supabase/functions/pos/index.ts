@@ -30,16 +30,44 @@ const db = createClient(
 const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
 const stripe = stripeKey ? new Stripe(stripeKey, { apiVersion: "2024-06-20" }) : null;
 
-/** Length-independent compare so the passcode can't be guessed a character at a time. */
-function codeOk(given: string | null): boolean {
-  const want = Deno.env.get("POS_ACCESS_CODE");
-  if (!want) return false;              // no code configured == locked, not open
-  if (!given) return false;
-  const a = new TextEncoder().encode(given);
-  const b = new TextEncoder().encode(want);
-  let diff = a.length ^ b.length;
-  for (let i = 0; i < Math.max(a.length, b.length); i++) diff |= (a[i] ?? 0) ^ (b[i] ?? 0);
+/** Length-independent compare so a code can't be guessed a character at a time. */
+function same(a: string, b: string): boolean {
+  const x = new TextEncoder().encode(a);
+  const y = new TextEncoder().encode(b);
+  let diff = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) diff |= (x[i] ?? 0) ^ (y[i] ?? 0);
   return diff === 0;
+}
+
+/**
+ * The passcode is today's date, MMDDYY.
+ *
+ * Computed in America/Chicago, not UTC — this function runs on a server
+ * somewhere else, and UTC rolls over at 6 or 7pm Central. Without the
+ * timezone the code would change in the middle of an evening event.
+ */
+function dateCode(offsetDays = 0): string {
+  const when = new Date(Date.now() + offsetDays * 86400000);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    month: "2-digit", day: "2-digit", year: "2-digit",
+  }).formatToParts(when);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return get("month") + get("day") + get("year");
+}
+
+function codeOk(given: string | null): boolean {
+  if (!given) return false;
+  const v = given.trim();
+
+  // Today's date, or yesterday's — an event running past midnight
+  // shouldn't lock the register at 12:01am.
+  if (same(v, dateCode(0)) || same(v, dateCode(-1))) return true;
+
+  // Optional fixed override. Only honoured if POS_ACCESS_CODE is set,
+  // so there's a way back in if the date ever fails at an event.
+  const want = Deno.env.get("POS_ACCESS_CODE");
+  return want ? same(v, want) : false;
 }
 
 const money = (n: unknown) => Math.round((Number(n) || 0) * 100) / 100;
