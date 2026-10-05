@@ -216,7 +216,7 @@ Deno.serve(async (req) => {
       // ---------- admin: the buttons ----------
       case "catalog": {
         const { data } = await db.from("products")
-          .select("id,title,price,status,product_type,categories")
+          .select("id,title,slug,price,status,product_type,categories,image_url,images")
           .in("status", ["live", "preorder", "coming_soon"])
           .order("title");
         return json({ products: data || [] });

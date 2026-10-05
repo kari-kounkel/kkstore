@@ -286,3 +286,9 @@ No barcode scanning. No offline card queue. No customer accounts.
 
 If an event ever gets big enough to need those, that's a good problem and a
 different afternoon.
+
+## Image, category and format setup (October 2026)
+Use Store Admin (/admin.html) to upload product cover images and edit categories. The first image is the register cover. In POS Admin add the catalog product, then Add format for hardback/softcover; enter each format's label, price and quantity yourself. The register groups formats under one compact cover and opens a format picker. Event prices and stock remain separate from store prices.
+
+Production had no POS events, items or sales at verification. Before Saturday, create/open the event, configure tax, enter products/format prices/quantities, confirm reader or QR card-payment configuration and cash, and verify a controlled payment/refund and event reporting. No real payments were tested. Existing payment/account integration was preserved. Known backend items requiring a separate review before payment readiness: predictable fallback login code, non-atomic sale writes, destructive item replacement affecting historical inventory links, unverified manual phone-paid marking, cancellation error handling, and no durable offline cash queue. No POS schema or payment redesign was performed.
+

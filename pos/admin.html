@@ -215,7 +215,7 @@
     <div class="card" id="itemsCard">
       <h2>Buttons on the register</h2>
       <div id="itemsHead"></div>
-      <div id="itemList"></div>
+      <p class="hand" style="margin-bottom:12px">Add the title from the catalog, then use Add format for Hardback / Softcover. Each format has its own price and stock; the register groups them under one cover.</p><p style="margin-bottom:16px"><a href="/admin.html" target="_blank" rel="noreferrer">Upload cover images and edit categories in Store Admin ↗</a><br><small>Use the existing product editor: Images (first = cover). Catalog images and categories also appear in the register. Prices entered here apply to this event.</small></p><div id="itemList"></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
         <button class="btn btn-g" id="addCatalog">+ From the shop catalog</button>
         <button class="btn btn-g" id="addBlank">+ Blank button</button>
@@ -420,7 +420,7 @@ function drawItems(){
       '<div class="ig"><input class="in mono" data-stock type="number" inputmode="numeric" value="' +
         (it.stock_qty == null ? '' : it.stock_qty) + '" placeholder="stock"></div>' +
       '<label class="tax"><input type="checkbox" data-tax ' + (it.taxable !== false ? 'checked' : '') + '>tax</label>' +
-      '<button class="x" data-del aria-label="Remove">×</button>';
+      '<div><button class="btn btn-g btn-sm" data-format type="button">Add format</button><button class="x" data-del aria-label="Remove">×</button></div>';
 
     d.querySelector('[data-up]').addEventListener('click', function(){
       if (i === 0) return;
@@ -431,6 +431,9 @@ function drawItems(){
       var t = items[i+1]; items[i+1] = items[i]; items[i] = t; drawItems();
     });
     d.querySelector('[data-del]').addEventListener('click', function(){ items.splice(i,1); drawItems(); });
+    d.querySelector('[data-format]').addEventListener('click',function(){
+      var copy=Object.assign({},it,{id:undefined,label:it.label+' — format',price:'',stock_qty:''});items.push(copy);drawItems();toast('Format added — name it Hardback or Softcover and set its price and stock.');
+    });
     d.querySelector('[data-label]').addEventListener('input', function(){ it.label = this.value; });
     d.querySelector('[data-price]').addEventListener('input', function(){ it.price = this.value; });
     d.querySelector('[data-stock]').addEventListener('input', function(){ it.stock_qty = this.value; });

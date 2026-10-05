@@ -262,6 +262,26 @@
     .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
     .tile{min-height:112px}
   }
+
+  /* Compact cover buttons and category navigation; cart/payment behavior is unchanged. */
+  .grid-wrap{padding:12px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(116px,1fr));gap:10px;align-items:start}
+  .tile{min-height:0;padding:9px;border-radius:12px;gap:4px;justify-content:flex-start}
+  .tile-cover{width:100%;height:116px;object-fit:contain;display:block;background:#fff;border-radius:5px}
+  .tile-placeholder{height:116px;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;font-size:15px;font-weight:800;background:var(--off);border-radius:6px}
+  .tile-caption{font-size:12px;line-height:1.25;font-weight:800;text-align:center;overflow-wrap:anywhere}
+  .tile-price{font-size:16px;margin-top:2px;text-align:center}
+  .tile-stock{font-size:10px;margin:1px 0 0;text-align:center}
+  .categories{display:flex;gap:7px;overflow-x:auto;padding:0 0 12px;position:sticky;top:-12px;background:var(--off);z-index:2}
+  .category{padding:10px 14px;min-height:44px;white-space:nowrap;border:1px solid var(--border);border-radius:99px;background:#fff;font-size:13px;font-weight:800}
+  .category.active{background:var(--pink);border-color:var(--pink);color:#fff}
+  .format-options{display:grid;gap:10px;margin:16px 0}
+  .format-option{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;border:1px solid var(--border);border-radius:10px;background:var(--off);padding:12px;font-size:17px;text-align:left}
+  .format-option:disabled{opacity:.4}
+  .format-option small{font-size:12px}
+  .format-close{min-height:48px;width:100%}
+  @media(max-width:700px){.grid{grid-template-columns:repeat(auto-fill,minmax(102px,1fr));gap:8px}.tile-cover,.tile-placeholder{height:100px}.tile{min-height:0}}
+
 </style>
 </head>
 <body>
@@ -292,6 +312,7 @@
 
   <div class="main">
     <div class="grid-wrap">
+      <div class="categories" id="categories" role="group" aria-label="Product categories"></div>
       <div class="grid" id="grid"></div>
     </div>
 
@@ -328,6 +349,7 @@ var API = SUPABASE_URL + '/functions/v1/pos';
 
 var $ = function(id){ return document.getElementById(id); };
 var code = '', evt = null, items = [], cart = [], discount = 0, email = '';
+var catalogProducts = [], selectedCategory = 'all', catalogLoaded = false;
 var clientRef = null, busy = false, pollTimer = null, activeSale = null;
 
 var fmt = function(n){
@@ -410,6 +432,7 @@ function load(d){
     : '  ·  no tax');
   drawGrid();
   drawCart();
+  if(!catalogLoaded){api('catalog',{}).then(function(x){catalogProducts=x.products||[];catalogLoaded=true;drawGrid();}).catch(function(){toast('Catalog pictures unavailable; product names remain available.');});}
 }
 
 function soldOut(it){
@@ -419,40 +442,90 @@ function soldOut(it){
   return it.stock_qty - inCart <= 0;
 }
 
+function catalogProduct(it){
+  return catalogProducts.filter(function(p){return p.id===it.product_id;})[0] || null;
+}
+function itemCategories(it){
+  var p=catalogProduct(it);
+  return p && Array.isArray(p.categories) && p.categories.length ? p.categories : ['general'];
+}
+function categoryLabel(s){return String(s).replace(/[_-]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});}
+function coverFor(it){
+  var p=catalogProduct(it);
+  var value=p && ((p.images && p.images[0]) || p.image_url);
+  if(!value && p){
+    if(p.slug==='ladybug-ladybug')value='/pos/covers/ladybug.jpg';
+    if(p.slug==='chasing-chickens')value='/pos/covers/chickens.png';
+    if(p.slug==='court-of-accounts')value='/coa/cover.png';
+  }
+  if(!value)return '';
+  try{var u=new URL(value,location.origin);return /^https?:$/.test(u.protocol)?u.href:'';}catch(e){return '';}
+}
+function drawCategories(){
+  var categories=[];
+  items.forEach(function(it){itemCategories(it).forEach(function(c){if(categories.indexOf(c)<0)categories.push(c);});});
+  categories.sort();
+  if(selectedCategory!=='all' && categories.indexOf(selectedCategory)<0)selectedCategory='all';
+  var bar=$('categories');bar.innerHTML='';
+  ['all'].concat(categories).forEach(function(c){
+    var b=document.createElement('button');b.type='button';b.className='category'+(selectedCategory===c?' active':'');
+    b.textContent=c==='all'?'All':categoryLabel(c);b.setAttribute('aria-pressed',String(selectedCategory===c));
+    b.onclick=function(){selectedCategory=c;drawGrid();};bar.appendChild(b);
+  });
+}
+function chooseFormat(group){
+  var veil=document.createElement('div');veil.className='veil';
+  veil.innerHTML='<div class="sheet"><h3>'+esc(group.title)+'</h3><p>Choose a format</p><div class="format-options"></div><button type="button" class="btn btn-quiet format-close">Cancel</button></div>';
+  var options=veil.querySelector('.format-options');
+  function close(){veil.remove();}
+  group.items.forEach(function(it){
+    var b=document.createElement('button');b.type='button';b.className='format-option';
+    b.disabled=soldOut(it);
+    var p=catalogProduct(it),base=p?p.title:group.title;
+    var label=it.label.replace(base,'').replace(/^\s*[-–—:]\s*/,'').trim() || it.label;
+    b.innerHTML='<span>'+esc(label)+'</span><strong>'+fmt(it.price)+'</strong>'+ (soldOut(it)?'<small>Sold out</small>':'');
+    b.onclick=function(){if(soldOut(it))return;add(it);close();};options.appendChild(b);
+  });
+  veil.querySelector('.format-close').onclick=close;
+  veil.onclick=function(e){if(e.target===veil)close();};
+  document.body.appendChild(veil);
+}
 function drawGrid(){
-  var g = $('grid');
-  g.innerHTML = '';
-
-  items.forEach(function(it){
-    var out = soldOut(it);
-    var b = document.createElement('button');
-    var tracked = it.stock_qty !== null && it.stock_qty !== undefined;
-    b.className = 'tile' + (out ? ' out' : '');
-    b.setAttribute('aria-label', it.label + ', ' + fmt(it.price));
-    var stock = '';
-    if (tracked){
-      var left = it.stock_qty;
-      cart.forEach(function(l){ if (l.item_id === it.id) left -= l.qty; });
-      stock = '<div class="tile-stock">' + (left <= 0 ? 'sold out' : left + ' left') + '</div>';
+  var g=$('grid');g.innerHTML='';drawCategories();
+  var groups=[];
+  items.filter(function(it){return selectedCategory==='all'||itemCategories(it).indexOf(selectedCategory)>=0;}).forEach(function(it){
+    var p=catalogProduct(it);
+    var base=it.label.replace(/\s*[-–—:]\s*(hardback|hardcover|softcover|paperback|large print|ebook|e-book|pdf).*$/i,'').trim();
+    var key=it.product_id || (base!==it.label?'format:'+base.toLowerCase():it.id);
+    var group=groups.filter(function(x){return x.key===key;})[0];
+    if(!group){group={key:key,title:p?p.title:base,items:[]};groups.push(group);}
+    group.items.push(it);
+  });
+  groups.forEach(function(group){
+    var first=group.items[0],multiple=group.items.length>1,out=group.items.every(soldOut);
+    var b=document.createElement('button');b.className='tile'+(out?' out':'');b.type='button';
+    var cover=coverFor(first),prices=group.items.map(function(it){return Number(it.price);});
+    var priceText=(multiple?'From ':'')+fmt(Math.min.apply(null,prices));
+    b.setAttribute('aria-label',group.title+', '+(multiple?'choose format, ':'')+priceText);
+    var stock='';
+    if(!multiple && first.stock_qty!=null){
+      var left=first.stock_qty;cart.forEach(function(l){if(l.item_id===first.id)left-=l.qty;});
+      stock='<span class="tile-stock">'+(left<=0?'sold out':left+' left')+'</span>';
     }
-    b.innerHTML =
-      '<div>' + stock + '<div class="tile-name">' + esc(it.label) + '</div></div>' +
-      '<div class="tile-price">' + fmt(it.price) + '</div>';
-    b.addEventListener('click', function(){
-      if (out) { toast(it.label + ' is sold out'); return; }
-      add(it); b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
-    });
+    b.innerHTML=(cover?'<img class="tile-cover" src="'+esc(cover)+'" alt="" loading="lazy">':'<div class="tile-placeholder">'+esc(group.title)+'</div>')+
+      '<div class="tile-caption">'+esc(group.title)+'</div><div class="tile-price">'+esc(priceText)+'</div>'+
+      (multiple?'<span class="tile-stock">'+group.items.length+' formats · tap to choose</span>':stock);
+    var img=b.querySelector('img');if(img)img.onerror=function(){img.remove();b.insertAdjacentHTML('afterbegin','<div class="tile-placeholder">'+esc(group.title)+'</div>');};
+    b.onclick=function(){
+      if(out){toast(group.title+' is sold out');return;}
+      if(multiple){chooseFormat(group);return;}
+      add(first);b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop');
+    };
     g.appendChild(b);
   });
-
-  var custom = document.createElement('button');
-  custom.className = 'tile special';
-  custom.innerHTML =
-    '<div><div class="tile-name">Other</div>' +
-    '<div class="tile-sub">custom amount</div></div>' +
-    '<div class="tile-price">$ · · ·</div>';
-  custom.addEventListener('click', askCustom);
-  g.appendChild(custom);
+  var custom=document.createElement('button');custom.className='tile special';custom.type='button';
+  custom.innerHTML='<div class="tile-placeholder">＋</div><div class="tile-caption">Other</div><div class="tile-price">Custom amount</div>';
+  custom.onclick=askCustom;g.appendChild(custom);
 }
 
 function esc(s){

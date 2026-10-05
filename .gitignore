@@ -1,0 +1,4 @@
+.vercel/
+.private/
+supabase/.temp/
+node_modules/
